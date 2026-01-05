@@ -228,7 +228,11 @@ onMounted(async () => {
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Membres de l'équipe</h1>
         <p class="text-gray-500 dark:text-gray-400 mt-1">Gérez les membres de votre équipe et leurs permissions.</p>
       </div>
-      <UButton label="Inviter des membres" icon="i-lucide-user-plus" color="primary" @click="handleInvite" />
+      <UButton
+label="Inviter des membres"
+icon="i-lucide-user-plus"
+color="primary"
+@click="handleInvite" />
     </div>
 
     <!-- Statistiques -->
@@ -299,17 +303,35 @@ onMounted(async () => {
       <!-- Header avec filtres -->
       <div class="p-4 border-b border-gray-200 dark:border-gray-800 space-y-4">
         <!-- Barre de recherche -->
-        <UInput v-model="searchQuery" icon="i-lucide-search" placeholder="Rechercher par nom ou email..." size="lg"
+        <UInput
+v-model="searchQuery"
+icon="i-lucide-search"
+placeholder="Rechercher par nom ou email..."
+size="lg"
           class="w-full" />
 
         <!-- Filtres -->
         <div class="flex flex-wrap items-center gap-3">
-          <USelectMenu v-model="selectedRole" :items="roleOptions" value-key="value" placeholder="Rôle" class="w-48" />
+          <USelectMenu
+v-model="selectedRole"
+:items="roleOptions"
+value-key="value"
+placeholder="Rôle"
+class="w-48" />
 
-          <USelectMenu v-model="selectedStatus" :items="statusOptions" value-key="value" placeholder="Statut"
+          <USelectMenu
+v-model="selectedStatus"
+:items="statusOptions"
+value-key="value"
+placeholder="Statut"
             class="w-48" />
 
-          <UButton v-if="hasActiveFilters" icon="i-lucide-x" color="neutral" variant="ghost" size="sm"
+          <UButton
+v-if="hasActiveFilters"
+icon="i-lucide-x"
+color="neutral"
+variant="ghost"
+size="sm"
             @click="clearAllFilters">
             Effacer les filtres
           </UButton>
@@ -318,7 +340,9 @@ onMounted(async () => {
 
       <!-- Liste des membres -->
       <div class="divide-y divide-gray-200 dark:divide-gray-800">
-        <div v-for="member in members" :key="member.id"
+        <div
+v-for="member in members"
+:key="member.id"
           class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
           <div class="flex items-center gap-4">
             <!-- Avatar -->
@@ -335,8 +359,11 @@ onMounted(async () => {
                     ({{ member.roles.map(r => formatMemberRole(r.name as MemberRole)).join(', ') }})
                   </span>
                 </h3>
-                <UBadge v-if="member.roles?.[0]?.name" :color="getRoleColor(member.roles[0].name) as any"
-                  variant="subtle" size="xs">
+                <UBadge
+v-if="member.roles?.[0]?.name"
+:color="getRoleColor(member.roles[0].name) as any"
+                  variant="subtle"
+size="xs">
                   {{ formatMemberRole(member.roles[0].name as MemberRole) }}
                 </UBadge>
               </div>
@@ -356,7 +383,11 @@ onMounted(async () => {
 
               <!-- Menu Actions -->
               <UDropdownMenu :items="getMenuItems(member)">
-                <UButton icon="i-lucide-more-vertical" color="neutral" variant="ghost" size="sm" />
+                <UButton
+icon="i-lucide-more-vertical"
+color="neutral"
+variant="ghost"
+size="sm" />
               </UDropdownMenu>
             </div>
           </div>
@@ -382,7 +413,8 @@ onMounted(async () => {
       </div>
 
       <!-- Pagination -->
-      <div v-if="members.length > 0 && !loading"
+      <div
+v-if="members.length > 0 && !loading"
         class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-800">
         <span class="text-sm text-gray-500 dark:text-gray-400">
           {{ members.length }} membre(s) sur {{ pagination.total }}
@@ -421,8 +453,17 @@ onMounted(async () => {
 
       <template #footer="{ close }">
         <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="neutral" variant="ghost" @click="close" />
-          <UButton label="Supprimer" color="error" icon="i-lucide-trash-2" :loading="loading" @click="confirmDelete" />
+          <UButton
+label="Annuler"
+color="neutral"
+variant="ghost"
+@click="close" />
+          <UButton
+label="Supprimer"
+color="error"
+icon="i-lucide-trash-2"
+:loading="loading"
+@click="confirmDelete" />
         </div>
       </template>
     </UModal>

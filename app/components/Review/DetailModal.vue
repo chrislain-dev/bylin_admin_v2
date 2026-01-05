@@ -57,7 +57,11 @@ function handleReject() {
               <UBadge :color="getReviewStatusColor(review.status)" variant="subtle" size="sm">
                 {{ getReviewStatusLabel(review.status) }}
               </UBadge>
-              <UBadge v-if="review.is_verified_purchase" color="success" variant="subtle" size="sm">
+              <UBadge
+v-if="review.is_verified_purchase"
+color="success"
+variant="subtle"
+size="sm">
                 <UIcon name="i-lucide-shield-check" class="w-3 h-3 mr-1" />
                 Achat vérifié
               </UBadge>
@@ -69,10 +73,16 @@ function handleReject() {
 
           <!-- Note -->
           <div class="flex items-center gap-1">
-            <UIcon v-for="i in starsArray.filled" :key="`filled-${i}`" name="i-lucide-star"
+            <UIcon
+v-for="i in starsArray.filled"
+:key="`filled-${i}`"
+name="i-lucide-star"
               class="w-5 h-5 text-yellow-500 fill-current" />
             <UIcon v-if="starsArray.half" name="i-lucide-star-half" class="w-5 h-5 text-yellow-500 fill-current" />
-            <UIcon v-for="i in starsArray.empty" :key="`empty-${i}`" name="i-lucide-star"
+            <UIcon
+v-for="i in starsArray.empty"
+:key="`empty-${i}`"
+name="i-lucide-star"
               class="w-5 h-5 text-gray-300" />
           </div>
         </div>
@@ -83,9 +93,16 @@ function handleReject() {
             Client
           </h3>
           <div class="flex items-center gap-3">
-            <UAvatar v-if="review.customer?.avatar_url" :src="review.customer.avatar_url"
-              :alt="`${review.customer.first_name} ${review.customer.last_name}`" size="lg" />
-            <UAvatar v-else icon="i-lucide-user" size="lg" class="bg-gray-100 dark:bg-gray-800" />
+            <UAvatar
+v-if="review.customer?.avatar_url"
+:src="review.customer.avatar_url"
+              :alt="`${review.customer.first_name} ${review.customer.last_name}`"
+size="lg" />
+            <UAvatar
+v-else
+icon="i-lucide-user"
+size="lg"
+class="bg-gray-100 dark:bg-gray-800" />
             <div>
               <p class="font-medium text-gray-900 dark:text-white">
                 {{ review.customer ? `${review.customer.first_name} ${review.customer.last_name}` : 'Client inconnu' }}
@@ -103,9 +120,17 @@ function handleReject() {
             Produit
           </h3>
           <div v-if="review.product" class="flex items-center gap-3">
-            <UAvatar v-if="review.product.thumbnail_url" :src="review.product.thumbnail_url" :alt="review.product.name"
-              size="lg" class="rounded-md" />
-            <UAvatar v-else icon="i-lucide-package" size="lg" class="bg-gray-100 dark:bg-gray-800 rounded-md" />
+            <UAvatar
+v-if="review.product.thumbnail_url"
+:src="review.product.thumbnail_url"
+:alt="review.product.name"
+              size="lg"
+class="rounded-md" />
+            <UAvatar
+v-else
+icon="i-lucide-package"
+size="lg"
+class="bg-gray-100 dark:bg-gray-800 rounded-md" />
             <div class="flex-1">
               <p class="font-medium text-gray-900 dark:text-white">
                 {{ review.product.name }}
@@ -149,10 +174,15 @@ function handleReject() {
             vidéo{{ countVideos(review) > 1 ? 's' : '' }})
           </h3>
           <div class="grid grid-cols-4 gap-2">
-            <div v-for="media in review.media" :key="media.id"
+            <div
+v-for="media in review.media"
+:key="media.id"
               class="relative aspect-square rounded-lg overflow-hidden group cursor-pointer">
-              <img v-if="media.media_type === 'image'" :src="media.url" :alt="`Media ${media.id}`"
-                class="w-full h-full object-cover transition-transform group-hover:scale-105" />
+              <img
+v-if="media.media_type === 'image'"
+:src="media.url"
+:alt="`Media ${media.id}`"
+                class="w-full h-full object-cover transition-transform group-hover:scale-105" >
               <div v-else class="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                 <UIcon name="i-lucide-play-circle" class="w-8 h-8 text-gray-400" />
               </div>
@@ -183,13 +213,26 @@ function handleReject() {
 
         <!-- Actions de modération -->
         <div v-if="canModerate" class="border-t border-gray-200 dark:border-gray-800 pt-4 flex justify-end gap-3">
-          <UButton label="Rejeter" color="error" variant="soft" icon="i-lucide-x-circle" @click="handleReject" />
-          <UButton label="Approuver" color="success" icon="i-lucide-check-circle" @click="handleApprove" />
+          <UButton
+label="Rejeter"
+color="error"
+variant="soft"
+icon="i-lucide-x-circle"
+@click="handleReject" />
+          <UButton
+label="Approuver"
+color="success"
+icon="i-lucide-check-circle"
+@click="handleApprove" />
         </div>
 
         <!-- Bouton fermer si pas de modération -->
         <div v-else class="border-t border-gray-200 dark:border-gray-800 pt-4 flex justify-end">
-          <UButton label="Fermer" color="neutral" variant="outline" @click="open = false" />
+          <UButton
+label="Fermer"
+color="neutral"
+variant="outline"
+@click="open = false" />
         </div>
       </div>
     </template>

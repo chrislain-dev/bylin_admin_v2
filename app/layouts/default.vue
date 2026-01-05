@@ -190,12 +190,7 @@ onMounted(async () => {
 
 <template>
   <UDashboardGroup unit="rem">
-    <UDashboardSidebar
-id="default"
-v-model:open="open"
-collapsible
-resizable
-class="bg-elevated/25"
+    <UDashboardSidebar id="default" v-model:open="open" collapsible resizable class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }">
       <template #header="{ collapsed }">
         <TeamsMenu :collapsed="collapsed" />
@@ -205,14 +200,8 @@ class="bg-elevated/25"
         <UDashboardSearchButton :collapsed="collapsed" class="bg-transparent ring-default" />
 
         <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar flex-1">
-          <UNavigationMenu
-v-for="(group, index) in links"
-:key="index"
-:collapsed="collapsed"
-:items="group"
-            orientation="vertical"
-tooltip
-popover />
+          <UNavigationMenu v-for="(group, index) in links" :key="index" :collapsed="collapsed" :items="group"
+            orientation="vertical" tooltip popover />
         </div>
       </template>
 

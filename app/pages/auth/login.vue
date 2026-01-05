@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const auth = useAuthStore()
 const toast = useToast()
+const router = useRouter()
 
 definePageMeta({
   layout: 'auth',
@@ -26,25 +27,11 @@ const handleLogin = async () => {
 
   try {
     await auth.login(form)
-
-    toast.add({
-      title: 'Connexion réussie',
-      description: 'Bienvenue sur Bylin.',
-      color: 'success',
-      icon: 'i-lucide-check-circle'
-    })
-
-    await navigateTo('/')
-
-  } catch (error: unknown) {
-    const message = getErrorMessage(error)
-
-    toast.add({
-      title: 'Erreur',
-      description: message,
-      color: 'error',
-      icon: 'i-lucide-x-circle'
-    })
+    // La redirection est gérée automatiquement par nuxt-auth-sanctum
+    // ou par le store auth
+  } catch (error) {
+    // Les erreurs sont déjà gérées dans le store
+    console.error('Erreur de connexion:', error)
   }
 }
 </script>
@@ -71,57 +58,32 @@ const handleLogin = async () => {
 
       <!-- Email -->
       <UFormField label="Email" name="email">
-        <UInput
-          v-model="form.email"
-          icon="i-lucide-mail"
-          placeholder="admin@bylin.com"
-          type="email"
-          autofocus
-          size="lg"
-          class="w-full"
-        />
+        <UInput v-model="form.email" icon="i-lucide-mail" placeholder="admin@bylin.com" type="email" autofocus size="lg"
+          class="w-full" />
       </UFormField>
 
       <!-- Password -->
       <UFormField label="Mot de passe" name="password">
-        <UInput
-          v-model="form.password"
-          :type="showPassword ? 'text' : 'password'"
-          icon="i-lucide-lock"
-          placeholder="••••••••"
-          size="lg"
-          class="w-full"
-        >
+        <UInput v-model="form.password" :type="showPassword ? 'text' : 'password'" icon="i-lucide-lock"
+          placeholder="••••••••" size="lg" class="w-full">
           <template #trailing>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-              :padded="false"
-              @click="showPassword = !showPassword"
-            />
+            <UButton color="neutral" variant="ghost" :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+              :padded="false" @click="showPassword = !showPassword" />
           </template>
         </UInput>
       </UFormField>
 
       <!-- Mot de passe oublié -->
       <div class="flex items-center justify-end">
-        <NuxtLink
-          to="/auth/forgot-password"
-          class="text-sm font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400 transition-colors"
-        >
+        <NuxtLink to="/auth/forgot-password"
+          class="text-sm font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400 transition-colors">
           Mot de passe oublié ?
         </NuxtLink>
       </div>
 
       <!-- Bouton Submit -->
-      <UButton
-        type="submit"
-        block
-        size="lg"
-        :loading="auth.loading"
-        class="bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200"
-      >
+      <UButton type="submit" block size="lg" :loading="auth.loading"
+        class="bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200">
         Se connecter
       </UButton>
 

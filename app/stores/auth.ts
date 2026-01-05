@@ -51,14 +51,25 @@ interface LoginCredentials extends Record<string, unknown> {
   remember?: boolean;
 }
 
+interface AuthError {
+  status: number;
+  message: string;
+  errors?: Record<string, string[]>;
+}
+
 export const useAuthStore = defineStore("auth", () => {
+  const toast = useToast();
+  const router = useRouter();
+
   const {
     user: sanctumUser,
     login: sanctumLogin,
     logout: sanctumLogout,
     refreshIdentity,
   } = useSanctumAuth();
+
   const loading = ref(false);
+  const error = ref<AuthError | null>(null);
 
   // Getters
   const user = computed(() => {
@@ -67,44 +78,225 @@ export const useAuthStore = defineStore("auth", () => {
 
   const isAuthenticated = computed(() => !!user.value);
 
-  // Actions
-  async function login(credentials: LoginCredentials) {
+  /**
+   * Vérifie si l'utilisateur a un rôle spécifique
+   */
+  const hasRole = (roleName: string): boolean => {
+    return user.value?.roles?.some((role) => role.name === roleName) ?? false;
+  };
+
+  /**
+   * Vérifie si l'utilisateur a une permission spécifique
+   */
+  const hasPermission = (permissionName: string): boolean => {
+    // Vérifier les permissions directes
+    const directPermission = user.value?.permissions?.some(
+      (perm) => perm.name === permissionName
+    );
+
+    // Vérifier les permissions via les rôles
+    const rolePermission = user.value?.roles?.some((role) =>
+      role.permissions?.some((perm) => perm.name === permissionName)
+    );
+
+    return directPermission || rolePermission || false;
+  };
+
+  /**
+   * Vérifie si l'utilisateur a au moins un des rôles
+   */
+  const hasAnyRole = (roleNames: string[]): boolean => {
+    return roleNames.some((roleName) => hasRole(roleName));
+  };
+
+  /**
+   * Vérifie si l'utilisateur a toutes les permissions
+   */
+  const hasAllPermissions = (permissionNames: string[]): boolean => {
+    return permissionNames.every((permissionName) =>
+      hasPermission(permissionName)
+    );
+  };
+
+  /**
+   * Formater les erreurs de l'API
+   */
+  function formatError(err: any): AuthError {
+    const status = err?.status || err?.response?.status || 500;
+    const message =
+      err?.data?.message ||
+      err?.message ||
+      "Une erreur est survenue lors de l'authentification.";
+    const errors = err?.data?.errors || {};
+
+    return { status, message, errors };
+  }
+
+  /**
+   * Afficher un toast d'erreur
+   */
+  function showErrorToast(authError: AuthError): void {
+    let title = "Erreur de connexion";
+    let description = authError.message;
+    let icon = "i-lucide-alert-circle";
+    let color: "error" | "warning" = "error";
+
+    switch (authError.status) {
+      case 401:
+        title = "Identifiants incorrects";
+        description = "Votre email ou mot de passe est incorrect.";
+        icon = "i-lucide-x-circle";
+        break;
+
+      case 403:
+        title = "Compte inactif";
+        description =
+          "Votre compte n'est pas actif. Contactez l'administrateur.";
+        icon = "i-lucide-alert-triangle";
+        color = "warning";
+        break;
+
+      case 422:
+        title = "Erreur de validation";
+        // Extraire la première erreur de validation
+        const firstError = Object.values(authError.errors || {})[0]?.[0];
+        if (firstError) {
+          description = firstError;
+        }
+        break;
+
+      case 423:
+        title = "Compte verrouillé";
+        description =
+          "Votre compte est temporairement verrouillé suite à plusieurs tentatives échouées.";
+        icon = "i-lucide-lock";
+        break;
+
+      case 429:
+        title = "Trop de tentatives";
+        description =
+          "Trop de tentatives de connexion. Veuillez réessayer plus tard.";
+        icon = "i-lucide-clock";
+        color = "warning";
+        break;
+
+      case 500:
+        title = "Erreur serveur";
+        description =
+          "Une erreur est survenue sur le serveur. Veuillez réessayer.";
+        icon = "i-lucide-server-crash";
+        break;
+    }
+
+    toast.add({
+      title,
+      description,
+      icon,
+      color,
+      duration: 5000,
+    });
+  }
+
+  /**
+   * Connexion
+   */
+  async function login(credentials: LoginCredentials): Promise<void> {
     loading.value = true;
+    error.value = null;
+
     try {
       await sanctumLogin(credentials);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Erreur lors de la connexion", error.message);
-      } else {
-        console.error("Erreur inconnue", error);
-      }
-      throw error;
+
+      // Succès - Redirection gérée par nuxt-auth-sanctum
+      toast.add({
+        title: "Connexion réussie",
+        description: `Bienvenue ${user.value?.name || ""}!`,
+        icon: "i-lucide-check-circle",
+        color: "success",
+      });
+    } catch (err: any) {
+      const authError = formatError(err);
+      error.value = authError;
+      showErrorToast(authError);
+      throw err;
     } finally {
       loading.value = false;
     }
   }
 
-  async function logout() {
+  /**
+   * Déconnexion
+   */
+  async function logout(): Promise<void> {
     loading.value = true;
+    error.value = null;
+
     try {
       await sanctumLogout();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Erreur lors de la déconnexion", error.message);
-      } else {
-        console.error("Erreur inconnue", error);
-      }
+
+      toast.add({
+        title: "Déconnexion réussie",
+        description: "À bientôt!",
+        icon: "i-lucide-log-out",
+        color: "success",
+      });
+
+      // Redirection gérée par nuxt-auth-sanctum
+    } catch (err: any) {
+      const authError = formatError(err);
+      error.value = authError;
+
+      console.error("Erreur lors de la déconnexion", authError);
+
+      toast.add({
+        title: "Erreur de déconnexion",
+        description: authError.message,
+        icon: "i-lucide-alert-circle",
+        color: "error",
+      });
     } finally {
       loading.value = false;
     }
+  }
+
+  /**
+   * Rafraîchir les données utilisateur
+   */
+  async function refresh(): Promise<void> {
+    try {
+      await refreshIdentity();
+    } catch (err: any) {
+      const authError = formatError(err);
+      error.value = authError;
+      console.error("Erreur lors du rafraîchissement", authError);
+    }
+  }
+
+  /**
+   * Réinitialiser l'erreur
+   */
+  function clearError(): void {
+    error.value = null;
   }
 
   return {
+    // State
     user,
-    isAuthenticated,
     loading,
+    error,
+
+    // Getters
+    isAuthenticated,
+    hasRole,
+    hasPermission,
+    hasAnyRole,
+    hasAllPermissions,
+
+    // Actions
     login,
     logout,
+    refresh,
     refreshIdentity,
+    clearError,
   };
 });

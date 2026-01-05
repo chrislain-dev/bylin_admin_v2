@@ -217,17 +217,31 @@ watch(isOpen, (value) => {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" title="Ajuster le stock" description="Modifier la quantité en stock"
-    :prevent-close="loading" @after:leave="handleModalClose">
+  <UModal
+v-model:open="isOpen"
+title="Ajuster le stock"
+description="Modifier la quantité en stock"
+    :prevent-close="loading"
+@after:leave="handleModalClose">
     <template #body>
-      <UForm v-if="item" ref="formRef" :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
+      <UForm
+v-if="item"
+ref="formRef"
+:schema="schema"
+:state="state"
+class="space-y-4"
+@submit="onSubmit">
         <!-- Info Produit (Header) -->
         <div class="rounded-lg bg-gray-50 dark:bg-gray-800/50 p-4 border border-gray-200 dark:border-gray-700">
           <div class="flex items-start gap-3">
             <!-- Image -->
             <div
               class="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700 overflow-hidden shrink-0 border border-gray-200 dark:border-gray-600">
-              <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="h-full w-full object-cover" />
+              <img
+v-if="item.image_url"
+:src="item.image_url"
+:alt="item.name"
+class="h-full w-full object-cover" >
               <div v-else class="h-full w-full flex items-center justify-center text-gray-400">
                 <UIcon name="i-heroicons-photo" class="h-6 w-6" />
               </div>
@@ -239,7 +253,12 @@ watch(isOpen, (value) => {
                 <p class="font-semibold text-gray-900 dark:text-white truncate">
                   {{ item.name }}
                 </p>
-                <UBadge v-if="item.type === 'variation'" label="Variation" color="secondary" variant="subtle" size="xs" />
+                <UBadge
+v-if="item.type === 'variation'"
+label="Variation"
+color="secondary"
+variant="subtle"
+size="xs" />
               </div>
               <p class="text-sm text-gray-500 font-mono mt-0.5">
                 SKU: {{ item.sku }}
@@ -249,7 +268,8 @@ watch(isOpen, (value) => {
             <!-- Stock Actuel (Grand) -->
             <div class="text-right">
               <span class="block text-xs text-gray-500 uppercase font-bold tracking-wider">Actuel</span>
-              <span class="text-xl font-bold font-mono"
+              <span
+class="text-xl font-bold font-mono"
                 :class="item.stock_quantity > 0 ? 'text-gray-900 dark:text-white' : 'text-red-500'">
                 {{ item.stock_quantity }}
               </span>
@@ -260,10 +280,15 @@ watch(isOpen, (value) => {
         <!-- Opération et Quantité -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <UFormField label="Opération" name="operation">
-            <USelectMenu v-model="state.operation" :items="operationOptions" value-key="value" :disabled="loading"
+            <USelectMenu
+v-model="state.operation"
+:items="operationOptions"
+value-key="value"
+:disabled="loading"
               class="w-full">
               <template #leading>
-                <UIcon v-if="state.operation"
+                <UIcon
+v-if="state.operation"
                   :name="operationOptions.find(o => o.value === state.operation)?.icon || ''"
                   class="size-4 text-gray-500" />
               </template>
@@ -271,8 +296,15 @@ watch(isOpen, (value) => {
           </UFormField>
 
           <UFormField label="Quantité" name="quantity">
-            <UInput v-model.number="state.quantity" type="number" min="0" placeholder="0" :disabled="loading"
-              class="w-full" :ui="{ base: 'text-right font-mono' }" autofocus />
+            <UInput
+v-model.number="state.quantity"
+type="number"
+min="0"
+placeholder="0"
+:disabled="loading"
+              class="w-full"
+:ui="{ base: 'text-right font-mono' }"
+autofocus />
           </UFormField>
         </div>
 
@@ -281,7 +313,9 @@ watch(isOpen, (value) => {
           <span class="text-sm text-gray-500">Nouveau stock estimé :</span>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 text-gray-400" />
-            <span class="font-mono font-bold text-lg transition-colors duration-200" :class="[
+            <span
+class="font-mono font-bold text-lg transition-colors duration-200"
+:class="[
               isStockNegative ? 'text-red-600 dark:text-red-400' : 'text-primary-600 dark:text-primary-400',
               isNoChange ? 'opacity-50' : ''
             ]">
@@ -292,14 +326,23 @@ watch(isOpen, (value) => {
 
         <!-- Raison -->
         <UFormField label="Raison de l'ajustement" name="reason" required>
-          <USelectMenu v-model="state.reason" :items="reasonOptions" value-key="value" placeholder="Sélectionner..."
-            :disabled="loading" class="w-full" />
+          <USelectMenu
+v-model="state.reason"
+:items="reasonOptions"
+value-key="value"
+placeholder="Sélectionner..."
+            :disabled="loading"
+class="w-full" />
         </UFormField>
 
         <!-- Notes -->
         <UFormField label="Notes / Commentaire" name="notes">
-          <UTextarea v-model="state.notes" placeholder="Référence commande, détail du dommage..." :rows="3"
-            :disabled="loading" class="w-full" />
+          <UTextarea
+v-model="state.notes"
+placeholder="Référence commande, détail du dommage..."
+:rows="3"
+            :disabled="loading"
+class="w-full" />
           <template #hint>
             <span class="text-xs" :class="notesRemaining < 50 ? 'text-orange-500' : 'text-gray-400'">
               {{ notesRemaining }} / 500
@@ -308,7 +351,8 @@ watch(isOpen, (value) => {
         </UFormField>
 
         <!-- Messages d'erreur visuels -->
-        <div v-if="isStockNegative"
+        <div
+v-if="isStockNegative"
           class="p-3 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
           <UIcon name="i-heroicons-exclamation-circle" class="w-5 h-5 shrink-0" />
           <span>Attention : Cette opération rendrait le stock négatif.</span>
@@ -318,9 +362,18 @@ watch(isOpen, (value) => {
 
     <template #footer>
       <div class="flex items-center justify-end gap-3 w-full">
-        <UButton label="Annuler" color="neutral" variant="ghost" :disabled="loading" @click="isOpen = false" />
-        <UButton label="Valider l'ajustement" color="primary" :loading="loading"
-          :disabled="isStockNegative || isNoChange" @click="handleSubmit" />
+        <UButton
+label="Annuler"
+color="neutral"
+variant="ghost"
+:disabled="loading"
+@click="isOpen = false" />
+        <UButton
+label="Valider l'ajustement"
+color="primary"
+:loading="loading"
+          :disabled="isStockNegative || isNoChange"
+@click="handleSubmit" />
       </div>
     </template>
   </UModal>

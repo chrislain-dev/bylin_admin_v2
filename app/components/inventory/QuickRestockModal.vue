@@ -98,15 +98,23 @@ watch(() => props.item, () => {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Réapprovisionnement rapide" description="Ajouter du stock rapidement"
+  <UModal
+v-model:open="open"
+title="Réapprovisionnement rapide"
+description="Ajouter du stock rapidement"
     @close="handleModalClose">
     <template #body>
-      <UForm v-if="item" :schema="schema" :state="state" class="p-4 space-y-4" @submit="onSubmit">
+      <UForm
+v-if="item"
+:schema="schema"
+:state="state"
+class="p-4 space-y-4"
+@submit="onSubmit">
         <!-- Product Info -->
         <div class="rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
           <div class="flex items-center gap-3">
             <div v-if="item.image_url" class="h-12 w-12 rounded-lg overflow-hidden">
-              <img :src="item.image_url" :alt="item.name" class="h-full w-full object-cover" />
+              <img :src="item.image_url" :alt="item.name" class="h-full w-full object-cover" >
             </div>
             <div v-else class="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
               <UIcon name="i-heroicons-photo" class="h-6 w-6 text-gray-400" />
@@ -138,8 +146,12 @@ watch(() => props.item, () => {
             Quantité rapide
           </label>
           <div class="grid grid-cols-4 gap-2">
-            <UButton v-for="qty in quickQuantities" :key="qty" :color="state.quantity === qty ? 'primary' : 'neutral'"
-              :variant="state.quantity === qty ? 'solid' : 'outline'" :disabled="loading"
+            <UButton
+v-for="qty in quickQuantities"
+:key="qty"
+:color="state.quantity === qty ? 'primary' : 'neutral'"
+              :variant="state.quantity === qty ? 'solid' : 'outline'"
+:disabled="loading"
               @click="selectQuickQuantity(qty)">
               +{{ qty }}
             </UButton>
@@ -148,14 +160,24 @@ watch(() => props.item, () => {
 
         <!-- Custom Quantity -->
         <UFormField label="Quantité personnalisée" name="quantity" required>
-          <UInput v-model.number="state.quantity" type="number" min="1" placeholder="Entrez la quantité"
-            :disabled="loading" class="w-full" />
+          <UInput
+v-model.number="state.quantity"
+type="number"
+min="1"
+placeholder="Entrez la quantité"
+            :disabled="loading"
+class="w-full" />
         </UFormField>
 
         <!-- Notes -->
         <UFormField label="Notes (optionnel)" name="notes">
-          <UTextarea v-model="state.notes" placeholder="Notes sur le réapprovisionnement..." :rows="2"
-            :disabled="loading" class="w-full" maxlength="300" />
+          <UTextarea
+v-model="state.notes"
+placeholder="Notes sur le réapprovisionnement..."
+:rows="2"
+            :disabled="loading"
+class="w-full"
+maxlength="300" />
           <template #hint>
             <span class="text-xs" :class="notesRemaining < 50 ? 'text-orange-500' : 'text-gray-500'">
               {{ notesRemaining }} caractères restants
@@ -186,10 +208,20 @@ watch(() => props.item, () => {
 
         <!-- Actions -->
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <UButton label="Annuler" color="neutral" variant="ghost" :disabled="loading" @click="open = false" />
+          <UButton
+label="Annuler"
+color="neutral"
+variant="ghost"
+:disabled="loading"
+@click="open = false" />
 
-          <UButton label="Réapprovisionner" color="primary" type="submit" :loading="loading"
-            :disabled="state.quantity <= 0" icon="i-heroicons-plus-circle" />
+          <UButton
+label="Réapprovisionner"
+color="primary"
+type="submit"
+:loading="loading"
+            :disabled="state.quantity <= 0"
+icon="i-heroicons-plus-circle" />
         </div>
       </UForm>
     </template>

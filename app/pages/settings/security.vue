@@ -199,19 +199,38 @@ const passwordStrength = computed(() => getPasswordStrength(password.new_passwor
 
     <div class="grid grid-cols-2 gap-4">
       <!-- Changement de mot de passe -->
-      <UPageCard title="Mot de passe"
+      <UPageCard
+title="Mot de passe"
         description="Modifiez votre mot de passe régulièrement pour assurer la sécurité de votre compte."
         variant="subtle">
-        <UForm :schema="passwordSchema" :state="password" :validate="validate" class="space-y-4 max-w-md"
+        <UForm
+:schema="passwordSchema"
+:state="password"
+:validate="validate"
+class="space-y-4 max-w-md"
           @submit="onChangePassword">
           <UFormField label="Mot de passe actuel" name="current_password" required>
-            <UInput v-model="password.current_password" type="password" placeholder="••••••••" icon="i-lucide-lock"
-              autocomplete="current-password" class="w-full" />
+            <UInput
+v-model="password.current_password"
+type="password"
+placeholder="••••••••"
+icon="i-lucide-lock"
+              autocomplete="current-password"
+class="w-full" />
           </UFormField>
 
-          <UFormField label="Nouveau mot de passe" name="new_password" required :hint="passwordStrength.strength">
-            <UInput v-model="password.new_password" type="password" placeholder="••••••••" icon="i-lucide-key"
-              autocomplete="new-password" class="w-full" />
+          <UFormField
+label="Nouveau mot de passe"
+name="new_password"
+required
+:hint="passwordStrength.strength">
+            <UInput
+v-model="password.new_password"
+type="password"
+placeholder="••••••••"
+icon="i-lucide-key"
+              autocomplete="new-password"
+class="w-full" />
             <template v-if="password.new_password" #hint>
               <UBadge :color="passwordStrength.color as UBadgeColor" variant="subtle" size="xs">
                 {{ passwordStrength.strength }}
@@ -220,14 +239,27 @@ const passwordStrength = computed(() => getPasswordStrength(password.new_passwor
           </UFormField>
 
           <UFormField label="Confirmer le nouveau mot de passe" name="new_password_confirmation" required>
-            <UInput v-model="password.new_password_confirmation" type="password" placeholder="••••••••"
-              icon="i-lucide-check-circle" autocomplete="new-password" class="w-full" />
+            <UInput
+v-model="password.new_password_confirmation"
+type="password"
+placeholder="••••••••"
+              icon="i-lucide-check-circle"
+autocomplete="new-password"
+class="w-full" />
           </UFormField>
 
           <div class="flex items-center gap-3">
-            <UButton type="submit" label="Modifier le mot de passe" :loading="isChangingPassword" icon="i-lucide-save" />
-            <UButton v-if="password.current_password || password.new_password" label="Annuler" color="neutral"
-              variant="ghost" @click="() => {
+            <UButton
+type="submit"
+label="Modifier le mot de passe"
+:loading="isChangingPassword"
+icon="i-lucide-save" />
+            <UButton
+v-if="password.current_password || password.new_password"
+label="Annuler"
+color="neutral"
+              variant="ghost"
+@click="() => {
                 password.current_password = ''
                 password.new_password = ''
                 password.new_password_confirmation = ''
@@ -271,11 +303,13 @@ const passwordStrength = computed(() => getPasswordStrength(password.new_passwor
     </div>
 
     <!-- Suppression de compte -->
-    <UPageCard title="Zone dangereuse"
+    <UPageCard
+title="Zone dangereuse"
       description="La suppression de votre compte est une action irréversible. Toutes vos données seront supprimées définitivement."
       class="border-2 border-red-200 dark:border-red-900 w-1/2">
       <!-- Avertissement super admin -->
-      <div v-if="isSuperAdmin && !isCheckingSuperAdmins"
+      <div
+v-if="isSuperAdmin && !isCheckingSuperAdmins"
         class="mb-4 flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-900">
         <UIcon name="i-lucide-alert-triangle" class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
         <div class="text-sm">
@@ -307,8 +341,12 @@ const passwordStrength = computed(() => getPasswordStrength(password.new_passwor
         </div>
       </div>
 
-      <UButton label="Supprimer mon compte" color="error" icon="i-lucide-trash-2"
-        :disabled="isCheckingSuperAdmins || (isSuperAdmin && !hasOtherSuperAdmins)" @click="openDeleteModal" />
+      <UButton
+label="Supprimer mon compte"
+color="error"
+icon="i-lucide-trash-2"
+        :disabled="isCheckingSuperAdmins || (isSuperAdmin && !hasOtherSuperAdmins)"
+@click="openDeleteModal" />
     </UPageCard>
 
     <!-- Modal de confirmation de suppression -->
@@ -343,9 +381,18 @@ const passwordStrength = computed(() => getPasswordStrength(password.new_passwor
           </div>
 
           <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-            <UButton label="Annuler" color="neutral" variant="ghost" @click="showDeleteModal = false" />
-            <UButton label="Supprimer définitivement" color="error" icon="i-lucide-trash-2" :loading="isDeletingAccount"
-              :disabled="deleteConfirmation !== 'SUPPRIMER'" @click="deleteAccount" />
+            <UButton
+label="Annuler"
+color="neutral"
+variant="ghost"
+@click="showDeleteModal = false" />
+            <UButton
+label="Supprimer définitivement"
+color="error"
+icon="i-lucide-trash-2"
+:loading="isDeletingAccount"
+              :disabled="deleteConfirmation !== 'SUPPRIMER'"
+@click="deleteAccount" />
           </div>
         </div>
       </template>

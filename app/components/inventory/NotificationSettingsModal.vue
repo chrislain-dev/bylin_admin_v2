@@ -107,11 +107,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Paramètres d'alertes de stock"
-    description="Configurez vos notifications pour la gestion du stock" :ui="{ content: 'min-w-[50%]' }"
+  <UModal
+v-model:open="open"
+title="Paramètres d'alertes de stock"
+    description="Configurez vos notifications pour la gestion du stock"
+:ui="{ content: 'min-w-[50%]' }"
     @close="handleModalClose">
     <template #body>
-      <UForm :schema="schema" :state="state" class="p-4 space-y-6" @submit="onSubmit">
+      <UForm
+:schema="schema"
+:state="state"
+class="p-4 space-y-6"
+@submit="onSubmit">
         <!-- Email Notifications -->
         <div>
           <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
@@ -159,10 +166,17 @@ onMounted(async () => {
             Seuils par défaut
           </h4>
 
-          <UFormField label="Seuil de stock faible" name="default_low_stock_threshold"
+          <UFormField
+label="Seuil de stock faible"
+name="default_low_stock_threshold"
             description="Appliqué aux nouveaux produits sans seuil défini">
-            <UInput v-model.number="state.default_low_stock_threshold" type="number" min="1" max="1000"
-              :disabled="loading" class="w-full">
+            <UInput
+v-model.number="state.default_low_stock_threshold"
+type="number"
+min="1"
+max="1000"
+              :disabled="loading"
+class="w-full">
               <template #trailing>
                 <span class="text-xs text-gray-500">unités</span>
               </template>
@@ -177,10 +191,16 @@ onMounted(async () => {
             Destinataires des alertes
           </h4>
 
-          <UFormField label="Emails supplémentaires" name="alert_emails"
+          <UFormField
+label="Emails supplémentaires"
+name="alert_emails"
             description="Adresses emails séparées par des virgules">
-            <UTextarea v-model="state.alert_emails" placeholder="email1@example.com, email2@example.com" :rows="2"
-              :disabled="loading" class="w-full" />
+            <UTextarea
+v-model="state.alert_emails"
+placeholder="email1@example.com, email2@example.com"
+:rows="2"
+              :disabled="loading"
+class="w-full" />
           </UFormField>
         </div>
 
@@ -192,7 +212,11 @@ onMounted(async () => {
           </h4>
 
           <UFormField name="alert_frequency">
-            <USelectMenu v-model="state.alert_frequency" :items="frequencyOptions" value-key="value" :disabled="loading"
+            <USelectMenu
+v-model="state.alert_frequency"
+:items="frequencyOptions"
+value-key="value"
+:disabled="loading"
               class="w-full">
               <template #item="{ item }">
                 <div class="flex flex-col">
@@ -220,13 +244,28 @@ onMounted(async () => {
 
         <!-- Actions -->
         <div class="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <UButton label="Réinitialiser" color="error" variant="ghost" icon="i-heroicons-arrow-path" :disabled="loading"
+          <UButton
+label="Réinitialiser"
+color="error"
+variant="ghost"
+icon="i-heroicons-arrow-path"
+:disabled="loading"
             @click="resetToDefaults" />
 
           <div class="flex gap-3">
-            <UButton label="Annuler" color="neutral" variant="ghost" :disabled="loading" @click="open = false" />
+            <UButton
+label="Annuler"
+color="neutral"
+variant="ghost"
+:disabled="loading"
+@click="open = false" />
 
-            <UButton label="Enregistrer" color="primary" type="submit" :loading="loading" icon="i-heroicons-check" />
+            <UButton
+label="Enregistrer"
+color="primary"
+type="submit"
+:loading="loading"
+icon="i-heroicons-check" />
           </div>
         </div>
       </UForm>

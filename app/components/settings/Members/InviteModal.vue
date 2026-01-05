@@ -219,12 +219,22 @@ async function handleSubmit() {
         >
           <div class="grid grid-cols-2 gap-4">
             <UFormField label="Email" name="email" required>
-              <UInput v-model="singleForm.email" type="email" placeholder="john@example.com" icon="i-lucide-mail" class="w-full"
+              <UInput
+v-model="singleForm.email"
+type="email"
+placeholder="john@example.com"
+icon="i-lucide-mail"
+class="w-full"
                 :disabled="loading" />
             </UFormField>
 
             <UFormField label="Nom (optionnel)" name="name">
-              <UInput v-model="singleForm.name" placeholder="John Doe" icon="i-lucide-user" :disabled="loading" class="w-full" />
+              <UInput
+v-model="singleForm.name"
+placeholder="John Doe"
+icon="i-lucide-user"
+:disabled="loading"
+class="w-full" />
             </UFormField>
           </div>
 

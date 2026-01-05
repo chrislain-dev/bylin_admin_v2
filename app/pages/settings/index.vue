@@ -257,7 +257,12 @@ function formatPermissionName(name: string): string {
     </div>
   </div>
 
-  <UForm v-else id="settings" :schema="profileSchema" :state="profile" @submit="onSubmit">
+  <UForm
+v-else
+id="settings"
+:schema="profileSchema"
+:state="profile"
+@submit="onSubmit">
     <UPageCard
       title="Profil"
       description="Ces informations seront affichées publiquement."
@@ -346,7 +351,11 @@ function formatPermissionName(name: string): string {
         required
         class="flex max-sm:flex-col justify-between items-start gap-4"
       >
-        <UInput v-model="profile.email" type="email" autocomplete="off" placeholder="votre@email.com" />
+        <UInput
+v-model="profile.email"
+type="email"
+autocomplete="off"
+placeholder="votre@email.com" />
       </UFormField>
 
       <USeparator />
@@ -358,7 +367,11 @@ function formatPermissionName(name: string): string {
         description="Votre numéro de téléphone (optionnel)."
         class="flex max-sm:flex-col justify-between items-start gap-4"
       >
-        <UInput v-model="profile.phone" type="tel" autocomplete="off" placeholder="+229 XX XX XX XX" />
+        <UInput
+v-model="profile.phone"
+type="tel"
+autocomplete="off"
+placeholder="+229 XX XX XX XX" />
       </UFormField>
 
       <USeparator />

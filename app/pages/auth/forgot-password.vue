@@ -2,7 +2,10 @@
 import type { ApiErrorResponse } from '~/types/validation'
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  sanctum: {
+    excluded: true,
+  }
 })
 
 const toast = useToast()
@@ -51,7 +54,7 @@ const handleResetLink = async () => {
   loading.value = true
 
   try {
-    await client('/api/v1/auth/forgot-password', {
+    await client('/api/v1/auth/admin/forgot-password', {
       method: 'POST',
       body: { email: email.value }
     })
@@ -99,7 +102,8 @@ const handleResetLink = async () => {
     </div>
 
     <!-- État Succès (Email envoyé) -->
-    <div v-if="emailSent" class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 text-center space-y-4">
+    <div v-if="emailSent"
+      class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 text-center space-y-4">
       <div class="flex justify-center">
         <UIcon name="i-lucide-mail-check" class="w-12 h-12 text-green-600 dark:text-green-400" />
       </div>
@@ -109,13 +113,7 @@ const handleResetLink = async () => {
           Un lien a été envoyé à <strong>{{ email }}</strong>.
         </p>
       </div>
-      <UButton
-        to="/auth/login"
-        variant="outline"
-        color="success"
-        block
-        class="mt-2"
-      >
+      <UButton to="/auth/login" variant="outline" color="success" block class="mt-2">
         Retour à la connexion
       </UButton>
     </div>
@@ -123,32 +121,18 @@ const handleResetLink = async () => {
     <!-- Formulaire -->
     <form v-else class="space-y-6" @submit.prevent="handleResetLink">
       <UFormField label="Adresse Email" name="email">
-        <UInput
-          v-model="email"
-          type="email"
-          icon="i-lucide-mail"
-          placeholder="admin@bylin.com"
-          size="lg"
-          autofocus
-          class="w-full"
-        />
+        <UInput v-model="email" type="email" icon="i-lucide-mail" placeholder="admin@bylin.com" size="lg" autofocus
+          class="w-full" />
       </UFormField>
 
-      <UButton
-        type="submit"
-        block
-        size="lg"
-        :loading="loading"
-        class="bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200"
-      >
+      <UButton type="submit" block size="lg" :loading="loading"
+        class="bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200">
         Envoyer le lien de réinitialisation
       </UButton>
 
       <div class="text-center">
-        <NuxtLink
-          to="/auth/login"
-          class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
-        >
+        <NuxtLink to="/auth/login"
+          class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors flex items-center justify-center gap-2">
           <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
           Retour à la connexion
         </NuxtLink>

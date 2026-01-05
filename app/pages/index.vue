@@ -5,22 +5,21 @@ import type { Period, Range } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
-// Menu d'actions rapides (Le bouton + en haut à droite)
 const items = [[{
   label: 'Nouveau Produit',
   icon: 'i-lucide-package-plus',
-  to: '/products/add' // Correspondra à ta création de produit
+  to: '/products/create'
 }, {
   label: 'Nouvelle Promotion',
   icon: 'i-lucide-ticket',
-  to: '/promotions/add' // Correspondra à ta création de promotion
+  to: '/promotions'
 }, {
   label: 'Ajouter un Membre',
   icon: 'i-lucide-user-plus',
-  to: '/team/add' // Pour ajouter un admin/manager
+  to: '/settings/members'
 }]] satisfies DropdownMenuItem[][]
 
-// Plage de dates par défaut (14 derniers jours)
+
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 14 }),
   end: new Date()
@@ -62,7 +61,6 @@ const period = ref<Period>('daily')
       <UDashboardToolbar>
         <template #left>
           <!-- Sélecteur de date -->
-          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
           <HomeDateRangePicker v-model="range" class="-ms-1" />
 
           <!-- Sélecteur de période (Journalier, Hebdo, Mensuel) -->
@@ -72,11 +70,7 @@ const period = ref<Period>('daily')
     </template>
 
     <template #body>
-      <!--
-        1. STATS GLOBALES
-        Devra appeler : Route::get('/dashboard/stats')
-        Pour afficher : Revenu total, Nbr Commandes, Nbr Clients, Alertes Stock
-      -->
+      <!-- 1. STATS GLOBALES -->
       <HomeStats :period="period" :range="range" />
 
       <!--
