@@ -296,8 +296,8 @@ onMounted(loadData)
                 </div>
 
                 <div class="lg:col-span-2">
-                  <UBadge :color="getRoleColor(member.role)" variant="subtle">
-                    {{ adminRoleLabel(member.role) }}
+                  <UBadge :color="getRoleColor(member.roles?.[0]?.name)" variant="subtle">
+                    {{ adminRoleLabel(member.roles?.[0]?.name) }}
                   </UBadge>
                 </div>
 
