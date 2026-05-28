@@ -83,7 +83,7 @@ export default defineNuxtConfig({
   // Optimisations Production
   // ========================================
   nitro: {
-    preset: "node-server",
+    preset: "vercel",
     compressPublicAssets: true,
     prerender: {
       crawlLinks: false,
