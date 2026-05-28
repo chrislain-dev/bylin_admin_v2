@@ -84,6 +84,8 @@
 
     is_active: z.boolean().default(true),
 
+    is_bylin_brand: z.boolean().default(false),
+
     sort_order: z.number()
       .int('L\'ordre doit être un nombre entier')
       .min(0, 'L\'ordre ne peut pas être négatif')
@@ -101,6 +103,7 @@
     logo: undefined,
     websiteDomain: '',
     is_active: true,
+    is_bylin_brand: false,
     sort_order: 0
   })
 
@@ -158,6 +161,7 @@
       description: brand.description ?? '',
       websiteDomain: website.domain,
       is_active: brand.is_active,
+      is_bylin_brand: brand.is_bylin_brand,
       sort_order: brand.sort_order,
       logo: undefined
     })
@@ -179,6 +183,7 @@
 
       formData.append('name', event.data.name)
       formData.append('is_active', event.data.is_active ? '1' : '0')
+      formData.append('is_bylin_brand', event.data.is_bylin_brand ? '1' : '0')
       formData.append('sort_order', String(event.data.sort_order))
 
       if (event.data.description) {
@@ -363,6 +368,16 @@ step="1"
           <template #description>
             <p class="text-xs text-muted mt-1">
               {{ state.is_active ? 'La marque sera visible publiquement' : 'La marque sera masquée' }}
+            </p>
+          </template>
+        </UFormField>
+
+        <!-- Marque Bylin -->
+        <UFormField name="is_bylin_brand">
+          <USwitch v-model="state.is_bylin_brand" label="Marque Bylin Enterprise" :disabled="loading" />
+          <template #description>
+            <p class="text-xs text-muted mt-1">
+              {{ state.is_bylin_brand ? 'Cette marque est une marque Bylin Enterprise' : 'Cette marque n\'est pas une marque Bylin Enterprise' }}
             </p>
           </template>
         </UFormField>

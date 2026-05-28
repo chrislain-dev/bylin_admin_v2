@@ -70,6 +70,7 @@ const period = ref<Period>('daily')
     </template>
 
     <template #body>
+      <div class="p-6 space-y-6">
       <!-- 1. STATS GLOBALES -->
       <HomeStats :period="period" :range="range" />
 
@@ -90,6 +91,7 @@ const period = ref<Period>('daily')
           Tu pourras ajouter ici un composant <HomeLowStock />
           qui appelle Route::get('/inventory/low-stock')
         -->
+      </div>
       </div>
     </template>
   </UDashboardPanel>

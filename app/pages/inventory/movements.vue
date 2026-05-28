@@ -226,6 +226,7 @@ onMounted(() => {
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Filters -->
       <UCard class="mb-6 min-h-36">
         <div class="space-y-4">
@@ -447,6 +448,7 @@ onMounted(() => {
           v-model:page="currentPage"
           :total="pagination.total"
           :items-per-page="pagination.pageSize" />
+      </div>
       </div>
     </template>
   </UDashboardPanel>

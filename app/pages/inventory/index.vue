@@ -394,6 +394,7 @@ onMounted(async () => {
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Cartes Statistiques -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <UCard :ui="{ body: 'p-4' }">
@@ -631,6 +632,7 @@ onMounted(async () => {
         @update:open="isAdjustModalOpen = $event"
         @success="handleSuccess"
       />
+      </div>
     </template>
   </UDashboardPanel>
 </template>

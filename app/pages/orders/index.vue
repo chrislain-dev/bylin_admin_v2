@@ -160,6 +160,7 @@ onMounted(() => fetchOrders())
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <UTable
         ref="table"
         v-model:pagination="pagination"
@@ -177,6 +178,7 @@ onMounted(() => fetchOrders())
           :items-per-page="state.pagination.per_page"
           :total="state.pagination.total"
           @update:page="setPage" />
+      </div>
       </div>
     </template>
   </UDashboardPanel>

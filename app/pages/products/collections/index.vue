@@ -309,145 +309,147 @@ onMounted(() => {
     </template>
 
     <template #body>
-      <!-- Toolbar -->
-      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
-        <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap">
-          <UInput
-            v-model="localSearch"
-            icon="i-lucide-search"
-            placeholder="Rechercher une collection..."
-            class="w-full sm:w-72"
-            :ui="{ trailing: 'pointer-events-auto' }"
-          >
-            <template v-if="localSearch" #trailing>
-              <UButton
-                color="neutral"
-                variant="link"
-                icon="i-lucide-x"
-                :padded="false"
-                @click="localSearch = ''"
-              />
-            </template>
-          </UInput>
+      <div class="p-6 min-h-full">
+        <!-- Toolbar -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap">
+            <UInput
+              v-model="localSearch"
+              icon="i-lucide-search"
+              placeholder="Rechercher une collection..."
+              class="w-full sm:w-72"
+              :ui="{ trailing: 'pointer-events-auto' }"
+            >
+              <template v-if="localSearch" #trailing>
+                <UButton
+                  color="neutral"
+                  variant="link"
+                  icon="i-lucide-x"
+                  :padded="false"
+                  @click="localSearch = ''"
+                />
+              </template>
+            </UInput>
 
-          <USelectMenu
-            v-model="localStatus"
-            :items="statusOptions"
-            value-key="value"
-            label-key="label"
-            class="w-40"
-          />
-
-          <UButton
-            v-if="localSearch || localStatus !== 'all'"
-            icon="i-lucide-filter-x"
-            color="gray"
-            variant="ghost"
-            label="Reset"
-            @click="handleReset"
-          />
-        </div>
-
-        <div class="flex items-center gap-2">
-          <!-- Actions de masse -->
-          <Transition
-            enter-active-class="transition duration-200"
-            enter-from-class="opacity-0 translate-y-1"
-            leave-active-class="transition duration-150"
-            leave-to-class="opacity-0 translate-y-1"
-          >
-            <div v-if="selectedIds && selectedIds.length > 0" class="flex items-center gap-2">
-              <UButton
-                color="error"
-                variant="soft"
-                icon="i-lucide-trash-2"
-                :label="`Supprimer (${selectedIds.length})`"
-                @click="openDeleteModal(selectedIds)"
-              />
-            </div>
-          </Transition>
-
-          <!-- Menu Colonnes -->
-          <UDropdownMenu
-            :items="visibleColumns.map(col => ({
-              label: upperFirst(col.id === 'name' ? 'Collection' : col.id),
-              type: 'checkbox',
-              checked: col.getIsVisible(),
-              onUpdateChecked: (v: boolean) => col.toggleVisibility(!!v)
-            }))"
-            :content="{ align: 'end' }"
-          >
-            <UButton
-              icon="i-lucide-sliders-horizontal"
-              color="neutral"
-              variant="outline"
+            <USelectMenu
+              v-model="localStatus"
+              :items="statusOptions"
+              value-key="value"
+              label-key="label"
+              class="w-40"
             />
-          </UDropdownMenu>
-        </div>
-      </div>
 
-      <!-- Tableau -->
-      <div class="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 flex-1 flex flex-col">
-        <UTable
-          ref="table"
-          v-model:row-selection="rowSelection"
-          :data="state?.collections || []"
-          :columns="columns"
-          :loading="isLoading"
-          class="flex-1"
-        >
-          <!-- Loading State -->
-          <template #loading-state>
-            <div class="p-4 space-y-4">
-              <div v-for="i in 5" :key="i" class="flex items-center gap-4">
-                <USkeleton class="h-4 w-4 rounded" />
-                <USkeleton class="h-12 w-12 rounded-md" />
-                <div class="space-y-2 flex-1">
-                  <USkeleton class="h-4 w-[40%]" />
-                  <USkeleton class="h-3 w-[25%]" />
-                </div>
-                <USkeleton class="h-6 w-20 rounded-full" />
-              </div>
-            </div>
-          </template>
+            <UButton
+              v-if="localSearch || localStatus !== 'all'"
+              icon="i-lucide-filter-x"
+              color="gray"
+              variant="ghost"
+              label="Reset"
+              @click="handleReset"
+            />
+          </div>
 
-          <!-- Empty State -->
-          <template #empty-state>
-            <div class="flex flex-col items-center justify-center py-16 text-center">
-              <div class="p-4 rounded-full bg-gray-50 dark:bg-gray-800/50 mb-3">
-                <UIcon name="i-lucide-folder-search" class="w-8 h-8 text-gray-400" />
+          <div class="flex items-center gap-2">
+            <!-- Actions de masse -->
+            <Transition
+              enter-active-class="transition duration-200"
+              enter-from-class="opacity-0 translate-y-1"
+              leave-active-class="transition duration-150"
+              leave-to-class="opacity-0 translate-y-1"
+            >
+              <div v-if="selectedIds && selectedIds.length > 0" class="flex items-center gap-2">
+                <UButton
+                  color="error"
+                  variant="soft"
+                  icon="i-lucide-trash-2"
+                  :label="`Supprimer (${selectedIds.length})`"
+                  @click="openDeleteModal(selectedIds)"
+                />
               </div>
-              <p class="text-base font-medium text-gray-900 dark:text-white">
-                Aucune collection trouvée
-              </p>
-              <p
-                v-if="localSearch || localStatus !== 'all'"
-                class="text-sm text-gray-500 mt-1"
-              >
-                Essayez de modifier vos critères de recherche.
-              </p>
+            </Transition>
+
+            <!-- Menu Colonnes -->
+            <UDropdownMenu
+              :items="visibleColumns.map(col => ({
+                label: upperFirst(col.id === 'name' ? 'Collection' : col.id),
+                type: 'checkbox',
+                checked: col.getIsVisible(),
+                onUpdateChecked: (v: boolean) => col.toggleVisibility(!!v)
+              }))"
+              :content="{ align: 'end' }"
+            >
               <UButton
-                v-else
-                label="Créer une collection"
-                color="primary"
-                class="mt-4"
-                @click="isCreateModalOpen = true"
+                icon="i-lucide-sliders-horizontal"
+                color="neutral"
+                variant="outline"
               />
-            </div>
-          </template>
-        </UTable>
-      </div>
+            </UDropdownMenu>
+          </div>
+        </div>
 
-      <!-- Pagination -->
-      <div class="flex items-center justify-between mt-4 border-t border-gray-200 dark:border-gray-800 pt-4">
-        <span class="text-sm text-gray-500">
-          Total : <span class="font-medium text-gray-900 dark:text-white">{{ state?.pagination?.total }}</span> collection(s)
-        </span>
-        <UPagination
-          v-model:page="currentPage"
-          :total="state?.pagination?.total"
-          :items-per-page="state?.pagination?.per_page"
-        />
+        <!-- Tableau -->
+        <div class="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-900 flex-1 flex flex-col">
+          <UTable
+            ref="table"
+            v-model:row-selection="rowSelection"
+            :data="state?.collections || []"
+            :columns="columns"
+            :loading="isLoading"
+            class="flex-1"
+          >
+            <!-- Loading State -->
+            <template #loading-state>
+              <div class="p-4 space-y-4">
+                <div v-for="i in 5" :key="i" class="flex items-center gap-4">
+                  <USkeleton class="h-4 w-4 rounded" />
+                  <USkeleton class="h-12 w-12 rounded-md" />
+                  <div class="space-y-2 flex-1">
+                    <USkeleton class="h-4 w-[40%]" />
+                    <USkeleton class="h-3 w-[25%]" />
+                  </div>
+                  <USkeleton class="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+            </template>
+
+            <!-- Empty State -->
+            <template #empty-state>
+              <div class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="p-4 rounded-full bg-gray-50 dark:bg-gray-800/50 mb-3">
+                  <UIcon name="i-lucide-folder-search" class="w-8 h-8 text-gray-400" />
+                </div>
+                <p class="text-base font-medium text-gray-900 dark:text-white">
+                  Aucune collection trouvée
+                </p>
+                <p
+                  v-if="localSearch || localStatus !== 'all'"
+                  class="text-sm text-gray-500 mt-1"
+                >
+                  Essayez de modifier vos critères de recherche.
+                </p>
+                <UButton
+                  v-else
+                  label="Créer une collection"
+                  color="primary"
+                  class="mt-4"
+                  @click="isCreateModalOpen = true"
+                />
+              </div>
+            </template>
+          </UTable>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 border-t border-gray-200 dark:border-gray-800 pt-4">
+          <span class="text-sm text-gray-500">
+            Total : <span class="font-medium text-gray-900 dark:text-white">{{ state?.pagination?.total }}</span> collection(s)
+          </span>
+          <UPagination
+            v-model:page="currentPage"
+            :total="state?.pagination?.total"
+            :items-per-page="state?.pagination?.per_page"
+          />
+        </div>
       </div>
     </template>
   </UDashboardPanel>

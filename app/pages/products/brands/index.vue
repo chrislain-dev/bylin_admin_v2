@@ -146,6 +146,18 @@ const columns: TableColumn<Brand>[] = [
     }
   },
   {
+    accessorKey: 'is_bylin_brand',
+    header: 'Bylin Enterprise',
+    cell: ({ row }) => {
+      const brand = row.original
+      return h(UBadge, {
+        variant: 'subtle',
+        color: brand.is_bylin_brand ? 'primary' : 'neutral',
+        size: 'sm'
+      }, () => brand.is_bylin_brand ? 'Oui' : 'Non')
+    }
+  },
+  {
     accessorKey: 'created_at',
     header: 'Créée',
     cell: ({ row }) => h('span', { class: 'text-sm text-gray-600' },
@@ -299,6 +311,7 @@ onMounted(() => {
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Toolbar -->
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2 w-full lg:w-auto">
@@ -415,6 +428,7 @@ class="mt-2"
       <!-- Modales -->
       <BrandEditModal v-model:open="isEditModalOpen" :brand="brandToEdit" @updated="onSuccess" />
       <BrandDeleteModal v-model:open="isDeleteModalOpen" :ids="idsToDelete" @success="onSuccess" />
+      </div>
     </template>
   </UDashboardPanel>
 </template>

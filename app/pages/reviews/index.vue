@@ -494,6 +494,7 @@ onMounted(async () => {
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Toolbar -->
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap">
@@ -642,6 +643,7 @@ onMounted(async () => {
           Total : <span class="font-medium text-gray-900 dark:text-white">{{ paginationTotal }}</span> avis
         </span>
         <UPagination v-model:page="currentPage" :total="paginationTotal" :items-per-page="paginationPerPage" />
+      </div>
       </div>
     </template>
   </UDashboardPanel>

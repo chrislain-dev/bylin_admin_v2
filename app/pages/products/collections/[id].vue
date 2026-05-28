@@ -134,12 +134,7 @@ onMounted(() => {
     <template #header>
       <UDashboardNavbar>
         <template #left>
-          <UButton
-            icon="i-lucide-arrow-left"
-            color="neutral"
-            variant="ghost"
-            to="/products/collections"
-          />
+          <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" to="/products/collections" />
           <div v-if="collection" class="ml-4">
             <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
               {{ collection.name }}
@@ -152,44 +147,33 @@ onMounted(() => {
 
         <template #right>
           <div class="flex items-center gap-2">
-            <UButton
-              :label="collection?.is_active ? 'Désactiver' : 'Activer'"
-              :icon="collection?.is_active ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-              color="neutral"
-              variant="outline"
-              :loading="isLoading"
-              @click="handleToggleActive"
-            />
+            <UButton :label="collection?.is_active ? 'Désactiver' : 'Activer'"
+              :icon="collection?.is_active ? 'i-lucide-eye-off' : 'i-lucide-eye'" color="neutral" variant="outline"
+              :loading="isLoading" @click="handleToggleActive" />
 
-            <UDropdownMenu
-              :items="[
-                [
-                  {
-                    label: 'Modifier',
-                    icon: 'i-lucide-pencil',
-                    onSelect: () => isEditModalOpen = true
-                  },
-                  {
-                    label: 'Voir les produits',
-                    icon: 'i-lucide-package',
-                    click: () => router.push(`/products?collection_id=${collectionId}`)
-                  }
-                ],
-                [
-                  {
-                    label: 'Supprimer',
-                    icon: 'i-lucide-trash',
-                    color: 'error',
-                    onSelect: () => isDeleteModalOpen = true
-                  }
-                ]
-              ]"
-            >
-              <UButton
-                icon="i-lucide-ellipsis-vertical"
-                color="neutral"
-                variant="ghost"
-              />
+            <UDropdownMenu :items="[
+              [
+                {
+                  label: 'Modifier',
+                  icon: 'i-lucide-pencil',
+                  onSelect: () => isEditModalOpen = true
+                },
+                {
+                  label: 'Voir les produits',
+                  icon: 'i-lucide-package',
+                  click: () => router.push(`/products?collection_id=${collectionId}`)
+                }
+              ],
+              [
+                {
+                  label: 'Supprimer',
+                  icon: 'i-lucide-trash',
+                  color: 'error',
+                  onSelect: () => isDeleteModalOpen = true
+                }
+              ]
+            ]">
+              <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
             </UDropdownMenu>
           </div>
         </template>
@@ -206,7 +190,7 @@ onMounted(() => {
       </div>
 
       <!-- Content -->
-      <div v-else-if="collection" class="space-y-6">
+      <div v-else-if="collection" class="space-y-6 p-6">
         <!-- Images et infos principales -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Images (Cover + Banner) -->
@@ -218,12 +202,8 @@ onMounted(() => {
               </template>
 
               <div class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                <img
-                  v-if="collection.cover_image_url"
-                  :src="collection.cover_image_url"
-                  :alt="collection.name"
-                  class="w-full h-full object-cover"
-                >
+                <img v-if="collection.cover_image_url" :src="collection.cover_image_url" :alt="collection.name"
+                  class="w-full h-full object-cover">
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <UIcon name="i-lucide-image" class="w-16 h-16 text-gray-400" />
                 </div>
@@ -237,11 +217,8 @@ onMounted(() => {
               </template>
 
               <div class="aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                <img
-                  :src="collection.banner_image_url"
-                  :alt="`${collection.name} - Bannière`"
-                  class="w-full h-full object-cover"
-                >
+                <img :src="collection.banner_image_url" :alt="`${collection.name} - Bannière`"
+                  class="w-full h-full object-cover">
               </div>
             </UCard>
           </div>
@@ -258,10 +235,7 @@ onMounted(() => {
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <p class="text-xs text-gray-500 mb-1">Statut</p>
-                    <UBadge
-                      :color="collection.is_active ? 'success' : 'neutral'"
-                      variant="subtle"
-                    >
+                    <UBadge :color="collection.is_active ? 'success' : 'neutral'" variant="subtle">
                       {{ collection.is_active ? 'Active' : 'Inactive' }}
                     </UBadge>
                   </div>
@@ -303,11 +277,7 @@ onMounted(() => {
               <template #header>
                 <div class="flex items-center justify-between">
                   <h3 class="text-sm font-semibold">Statistiques des produits</h3>
-                  <UIcon
-                    v-if="loadingStats"
-                    name="i-lucide-loader-2"
-                    class="w-4 h-4 animate-spin text-gray-400"
-                  />
+                  <UIcon v-if="loadingStats" name="i-lucide-loader-2" class="w-4 h-4 animate-spin text-gray-400" />
                 </div>
               </template>
 
@@ -371,79 +341,40 @@ onMounted(() => {
                 Produits ({{ collection?.products?.length }})
               </h3>
               <div class="flex items-center gap-2">
-                <UButton
-                  label="Ajouter des produits"
-                  icon="i-lucide-plus"
-                  color="primary"
-                  variant="outline"
-                  size="sm"
-                  @click="isAddProductsModalOpen = true"
-                />
-                <UButton
-                  label="Voir tous"
-                  icon="i-lucide-external-link"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  @click="router.push(`/products?collection_id=${collectionId}`)"
-                />
+                <UButton label="Ajouter des produits" icon="i-lucide-plus" color="primary" variant="outline" size="sm"
+                  @click="isAddProductsModalOpen = true" />
+                <UButton label="Voir tous" icon="i-lucide-external-link" color="neutral" variant="ghost" size="sm"
+                  @click="router.push(`/products?collection_id=${collectionId}`)" />
               </div>
             </div>
           </template>
 
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div
-              v-for="product in collection.products"
-              :key="product.id"
-              class="relative group"
-            >
+            <div v-for="product in collection.products" :key="product.id" class="relative group">
               <!-- Card produit -->
-              <div
-                class="cursor-pointer"
-                @click="router.push(`/products/${product.id}`)"
-              >
+              <div class="cursor-pointer" @click="router.push(`/products/${product.id}`)">
                 <!-- Image -->
                 <div class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 mb-2 relative">
-                  <img
-                    v-if="product.thumbnail_url"
-                    :src="product.thumbnail_url"
-                    :alt="product.name"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  >
+                  <img v-if="product.thumbnail_url" :src="product.thumbnail_url" :alt="product.name"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform">
                   <div v-else class="w-full h-full flex items-center justify-center">
                     <UIcon name="i-lucide-image" class="w-8 h-8 text-gray-400" />
                   </div>
 
                   <!-- Badge stock -->
                   <div class="absolute top-2 left-2">
-                    <UBadge
-                      v-if="product.stock_quantity <= 0"
-                      color="error"
-                      variant="solid"
-                      size="xs"
-                    >
+                    <UBadge v-if="product.stock_quantity <= 0" color="error" variant="solid" size="xs">
                       Rupture
                     </UBadge>
-                    <UBadge
-                      v-else-if="product.stock_quantity <= 5"
-                      color="warning"
-                      variant="solid"
-                      size="xs"
-                    >
+                    <UBadge v-else-if="product.stock_quantity <= 5" color="warning" variant="solid" size="xs">
                       Stock faible
                     </UBadge>
                   </div>
 
                   <!-- Bouton retirer (apparaît au hover) -->
                   <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <UButton
-                      icon="i-lucide-x"
-                      color="error"
-                      variant="solid"
-                      size="xs"
-                      class="p-1 rounded-full cursor-pointer"
-                      @click.stop="handleRemoveProduct(product)"
-                    />
+                    <UButton icon="i-lucide-x" color="error" variant="solid" size="xs"
+                      class="p-1 rounded-full cursor-pointer" @click.stop="handleRemoveProduct(product)" />
                   </div>
                 </div>
 
@@ -476,13 +407,8 @@ onMounted(() => {
             <p class="text-sm text-gray-500 mt-1">
               Ajoutez des produits pour enrichir cette collection
             </p>
-            <UButton
-              label="Ajouter des produits"
-              icon="i-lucide-plus"
-              color="primary"
-              class="mt-4"
-              @click="isAddProductsModalOpen = true"
-            />
+            <UButton label="Ajouter des produits" icon="i-lucide-plus" color="primary" class="mt-4"
+              @click="isAddProductsModalOpen = true" />
           </div>
         </UCard>
       </div>
@@ -490,30 +416,14 @@ onMounted(() => {
   </UDashboardPanel>
 
   <!-- Modales -->
-  <CollectionEditModal
-    v-model:open="isEditModalOpen"
-    :collection="collection"
-    @updated="handleUpdated"
-  />
+  <CollectionEditModal v-model:open="isEditModalOpen" :collection="collection" @updated="handleUpdated" />
 
-  <CollectionDeleteModal
-    v-model:open="isDeleteModalOpen"
-    :collection-ids="[collectionId]"
-    @deleted="handleDelete"
-  />
+  <CollectionDeleteModal v-model:open="isDeleteModalOpen" :collection-ids="[collectionId]" @deleted="handleDelete" />
 
-  <CollectionConfirmDialog
-v-model:open="isConfirmRemoveOpen"
-title="Retirer le produit"
+  <CollectionConfirmDialog v-model:open="isConfirmRemoveOpen" title="Retirer le produit"
     :description="`Êtes-vous sûr de vouloir retirer &quot;${productToRemove?.name}&quot; de cette collection ?`"
-    confirm-label="Retirer"
-variant="danger"
-@confirm="onConfirmRemove" />
+    confirm-label="Retirer" variant="danger" @confirm="onConfirmRemove" />
 
-  <CollectionAddProductsModal
-    v-model:open="isAddProductsModalOpen"
-    :collection-id="collectionId"
-    :collection-name="collection?.name || ''"
-    @added="handleProductsAdded"
-  />
+  <CollectionAddProductsModal v-model:open="isAddProductsModalOpen" :collection-id="collectionId"
+    :collection-name="collection?.name || ''" @added="handleProductsAdded" />
 </template>

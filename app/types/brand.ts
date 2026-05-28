@@ -24,6 +24,7 @@ export interface SpatieMedia {
 export interface Brand {
   id: string;
   name: string;
+  is_bylin_brand: boolean;
   slug: string;
   description?: string | null;
   website?: string | null;

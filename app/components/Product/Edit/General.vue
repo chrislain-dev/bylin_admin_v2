@@ -8,38 +8,50 @@ const props = defineProps<{
   brands: Brand[]
   categories: readonly Category[]
   collections: Collection[]
+  mode?: 'create' | 'edit'
 }>()
 
 const productFormStore = useProductFormStore()
 
 interface CategoryOption {
   label: string
-  value: number | string
+  value: string
   level?: number
 }
 
 const selectedBrand = computed(() => {
-  if (!productFormStore.formData.brand_id) return null
+  if (!productFormStore.formData.brand_id) {
+    return null
+  }
+
   return props.brands.find((brand) => brand.id === productFormStore.formData.brand_id) || null
 })
 
 const isBylinBrand = computed(() => selectedBrand.value?.slug === 'bylin')
 
-const brandOptions = computed(() => props.brands.map((brand) => ({
-  label: brand.name,
-  value: brand.id,
-  logo_url: brand.logo_url,
-})))
+const brandOptions = computed(() => {
+  return props.brands.map((brand) => ({
+    label: brand.name,
+    value: brand.id,
+    logo_url: brand.logo_url,
+  }))
+})
 
-const collectionOptions = computed(() => props.collections
-  .filter((collection) => collection.is_active)
-  .map((collection) => ({
-    label: collection.name,
-    value: collection.id,
-  })))
+const collectionOptions = computed(() => {
+  return props.collections
+    .filter((collection) => collection.is_active)
+    .map((collection) => ({
+      label: collection.name,
+      value: collection.id,
+    }))
+})
 
-const categoryOptions = computed(() => {
-  const flatten = (categories: readonly Category[], prefix = '', result: CategoryOption[] = []): CategoryOption[] => {
+const categoryOptions = computed<CategoryOption[]>(() => {
+  const flatten = (
+    categories: readonly Category[],
+    prefix = '',
+    result: CategoryOption[] = [],
+  ): CategoryOption[] => {
     categories.forEach((category) => {
       result.push({
         label: `${prefix}${category.name}`,
@@ -58,6 +70,10 @@ const categoryOptions = computed(() => {
   return flatten(props.categories)
 })
 
+const productNameLength = computed(() => productFormStore.formData.name?.length || 0)
+const shortDescriptionLength = computed(() => productFormStore.formData.short_description?.length || 0)
+const descriptionLength = computed(() => productFormStore.formData.description?.length || 0)
+
 watch(isBylinBrand, (enabled) => {
   if (!enabled) {
     productFormStore.setFormData({
@@ -65,16 +81,23 @@ watch(isBylinBrand, (enabled) => {
       requires_authenticity: false,
       authenticity_codes_count: 0,
     })
+
     return
   }
 
-  productFormStore.setFormData({ requires_authenticity: true })
+  productFormStore.setFormData({
+    requires_authenticity: true,
+  })
 })
 
 function generateSlug(): void {
-  if (!productFormStore.formData.name) return
+  const name = productFormStore.formData.name
 
-  const slug = productFormStore.formData.name
+  if (!name?.trim()) {
+    return
+  }
+
+  const slug = name
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -87,134 +110,145 @@ function generateSlug(): void {
 
 <template>
   <div class="space-y-6 p-6">
+    <!-- Bloc essentiel -->
     <UCard>
       <template #header>
-        <div>
-          <h2 class="text-base font-semibold text-gray-950 dark:text-white">
-            Informations essentielles
-          </h2>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Ces informations permettent d’identifier et de classer le produit dans la boutique.
-          </p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 class="text-base font-semibold text-gray-950 dark:text-white">
+              Informations principales
+            </h2>
+
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Ces informations permettent d’identifier le produit et de le placer correctement dans la boutique.
+            </p>
+          </div>
+
+          <UBadge
+            :color="productFormStore.formData.name && productFormStore.formData.brand_id && productFormStore.formData.categories.length ? 'success' : 'warning'"
+            variant="subtle">
+            {{ productFormStore.formData.name && productFormStore.formData.brand_id &&
+              productFormStore.formData.categories.length ? 'Essentiel complété' : 'À compléter' }}
+          </UBadge>
         </div>
       </template>
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <UFormField label="Nom du produit" required>
-          <UInput
-            :model-value="productFormStore.formData.name"
-            placeholder="Ex. Sac cabas Bylin noir"
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ name: String($event) })"
-            @blur="generateSlug"
-          />
+      <div class="grid gap-5 lg:grid-cols-2">
+        <UFormField label="Nom du produit" description="Nom affiché sur la boutique et dans le catalogue." required>
+          <UInput :model-value="productFormStore.formData.name" placeholder="Ex. Sac cabas Bylin noir" class="w-full"
+            @update:model-value="productFormStore.setFormData({ name: String($event || '') })" @blur="generateSlug" />
+
+          <template #hint>
+            <span class="text-xs text-gray-500">
+              {{ productNameLength }}/120 caractères recommandés
+            </span>
+          </template>
         </UFormField>
 
-        <UFormField label="Marque" required>
-          <USelectMenu
-            :model-value="productFormStore.formData.brand_id"
-            :items="brandOptions"
-            value-key="value"
-            label-key="label"
-            placeholder="Choisir une marque"
-            searchable
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ brand_id: $event as string })"
-          >
+        <UFormField label="Marque" description="Marque à laquelle ce produit appartient." required>
+          <USelectMenu :model-value="productFormStore.formData.brand_id" :items="brandOptions" value-key="value"
+            label-key="label" placeholder="Choisir une marque" searchable class="w-full"
+            @update:model-value="productFormStore.setFormData({ brand_id: $event as string })">
             <template v-if="selectedBrand" #leading>
-              <img v-if="selectedBrand.logo_url" :src="selectedBrand.logo_url" class="size-4 rounded object-contain">
+              <img v-if="selectedBrand.logo_url" :src="selectedBrand.logo_url" :alt="selectedBrand.name"
+                class="size-4 rounded object-contain">
+
               <UIcon v-else name="i-lucide-tag" class="size-4 text-gray-400" />
             </template>
           </USelectMenu>
         </UFormField>
 
-        <UFormField label="Catégories" required>
-          <USelectMenu
-            :model-value="productFormStore.formData.categories"
-            :items="categoryOptions"
-            value-key="value"
-            label-key="label"
-            placeholder="Choisir une ou plusieurs catégories"
-            multiple
-            searchable
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ categories: $event as string[] })"
-          />
+        <UFormField label="Catégories" description="Classez le produit pour faciliter la navigation client." required>
+          <USelectMenu :model-value="productFormStore.formData.categories" :items="categoryOptions" value-key="value"
+            label-key="label" placeholder="Choisir une ou plusieurs catégories" multiple searchable class="w-full"
+            @update:model-value="productFormStore.setFormData({ categories: $event as string[] })" />
         </UFormField>
 
-        <UFormField v-if="isBylinBrand" label="Collection Bylin" required>
-          <USelectMenu
-            :model-value="productFormStore.formData.collection_id || undefined"
-            :items="collectionOptions"
-            value-key="value"
-            label-key="label"
-            placeholder="Choisir la collection"
-            searchable
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ collection_id: $event as string })"
-          />
+        <UFormField v-if="isBylinBrand" label="Collection Bylin"
+          description="Collection dans laquelle le produit sera présenté." required>
+          <USelectMenu :model-value="productFormStore.formData.collection_id || undefined" :items="collectionOptions"
+            value-key="value" label-key="label" placeholder="Choisir une collection" searchable class="w-full"
+            @update:model-value="productFormStore.setFormData({ collection_id: $event as string })" />
+
           <template #hint>
-            Obligatoire pour les produits de la marque Bylin.
+            <span class="text-xs text-primary">
+              Obligatoire pour les produits de la marque Bylin.
+            </span>
           </template>
         </UFormField>
       </div>
+
+      <UAlert v-if="isBylinBrand" class="mt-5" color="primary" variant="soft" icon="i-lucide-sparkles"
+        title="Produit Bylin détecté"
+        description="Ce produit sera automatiquement compatible avec l’authentification Bylin et devra être rattaché à une collection." />
     </UCard>
 
+    <!-- Présentation -->
     <UCard>
       <template #header>
         <div>
           <h2 class="text-base font-semibold text-gray-950 dark:text-white">
             Présentation commerciale
           </h2>
+
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Utilisez un langage clair pour aider le client à comprendre le produit.
+            Aidez le client à comprendre rapidement le produit, ses avantages et son usage.
           </p>
         </div>
       </template>
 
-      <div class="space-y-4">
-        <UFormField label="Résumé court">
-          <UTextarea
-            :model-value="productFormStore.formData.short_description"
-            :rows="3"
-            placeholder="Phrase courte affichée dans les listes ou cartes produit."
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ short_description: String($event) })"
-          />
+      <div class="space-y-5">
+        <UFormField label="Résumé court"
+          description="Phrase courte utilisée dans les listes, cartes produit ou aperçus.">
+          <UTextarea :model-value="productFormStore.formData.short_description" :rows="3"
+            placeholder="Ex. Sac élégant et pratique pour le quotidien." class="w-full"
+            @update:model-value="productFormStore.setFormData({ short_description: String($event || '') })" />
+
+          <template #hint>
+            <span class="text-xs text-gray-500">
+              {{ shortDescriptionLength }}/180 caractères recommandés
+            </span>
+          </template>
         </UFormField>
 
-        <UFormField label="Description complète">
-          <UTextarea
-            :model-value="productFormStore.formData.description"
-            :rows="8"
-            placeholder="Décrivez les matières, l’usage, les dimensions, les conseils d’entretien, etc."
-            class="w-full"
-            @update:model-value="productFormStore.setFormData({ description: String($event) })"
-          />
+        <UFormField label="Description complète"
+          description="Détaillez la matière, les dimensions, l’usage, les conseils d’entretien et les avantages.">
+          <UTextarea :model-value="productFormStore.formData.description" :rows="8"
+            placeholder="Décrivez le produit avec des informations utiles pour le client." class="w-full"
+            @update:model-value="productFormStore.setFormData({ description: String($event || '') })" />
+
+          <template #hint>
+            <span class="text-xs text-gray-500">
+              {{ descriptionLength }} caractères
+            </span>
+          </template>
         </UFormField>
       </div>
     </UCard>
 
+    <!-- Références internes -->
     <UCard>
       <template #header>
-        <h2 class="text-base font-semibold text-gray-950 dark:text-white">
-          Référencement interne
-        </h2>
+        <div>
+          <h2 class="text-base font-semibold text-gray-950 dark:text-white">
+            Références internes
+          </h2>
+
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Ces informations servent à identifier le produit dans le système.
+          </p>
+        </div>
       </template>
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <UFormField label="Adresse du produit">
-          <UInput :model-value="productFormStore.formData.slug" disabled class="w-full" />
-          <template #hint>
-            Générée automatiquement à partir du nom.
-          </template>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <UFormField label="Adresse du produit" description="Lien généré automatiquement à partir du nom.">
+          <UInput :model-value="productFormStore.formData.slug" placeholder="adresse-du-produit" readonly class="w-full"
+            @update:model-value="productFormStore.setFormData({ slug: String($event || '') })" />
         </UFormField>
 
-        <UFormField label="Référence SKU">
-          <UInput :model-value="productFormStore.formData.sku" disabled class="w-full" />
-          <template #hint>
-            Générée par le système.
-          </template>
+        <UFormField label="Référence SKU" description="Référence interne du produit.">
+          <UInput :model-value="productFormStore.formData.sku" placeholder="Générée par le système"  readonly class="w-full"
+            @update:model-value="productFormStore.setFormData({ sku: String($event || '') })" />
         </UFormField>
       </div>
     </UCard>

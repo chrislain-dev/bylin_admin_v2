@@ -1,6 +1,65 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* =============================================
+   CORRECTIFS LAYOUT & SCROLL GLOBAL
+   ============================================= */
+
+/* Assure que le body et html ne bloquent pas le scroll */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Le panel body doit être scrollable */
+[data-dashboard-panel] > [data-panel-body],
+.dashboard-panel-body {
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* Force le scroll sur les slots body de UDashboardPanel */
+[class*="overflow-y-auto"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar fine et discrète */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 9999px;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background-color: rgb(51 65 85);
+}
+
+/* Empêche les grids de déborder hors du viewport */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Fix sidebar sticky dans le formulaire produit */
+.product-sidebar-sticky {
+  position: sticky;
+  top: 1.5rem;
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+}
+
 @theme static {
   --font-sans: 'Public Sans', sans-serif;
 

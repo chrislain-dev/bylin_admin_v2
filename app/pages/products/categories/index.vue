@@ -398,6 +398,7 @@ onMounted(() => {
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Toolbar -->
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
         <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap">
@@ -550,6 +551,7 @@ onMounted(() => {
         :ids="idsToDelete"
         @success="onSuccess"
       />
+      </div>
     </template>
   </UDashboardPanel>
 </template>

@@ -398,6 +398,7 @@ to="/products/create" />
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <!-- Badge filtre collection -->
       <UAlert
 v-if="filteredCollection"
@@ -561,6 +562,7 @@ v-if="paginationTotal > 0"
 v-model:page="currentPage"
 :total="state.pagination?.total"
           :items-per-page="state.pagination?.per_page" />
+      </div>
       </div>
     </template>
   </UDashboardPanel>

@@ -223,6 +223,7 @@ onMounted(() => fetchMethods())
     </template>
 
     <template #body>
+      <div class="p-6 min-h-full">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <UInput
           v-model="localSearch"
@@ -254,6 +255,7 @@ onMounted(() => fetchMethods())
           :items-per-page="pagination.perPage"
           :total="pagination.total"
         />
+      </div>
       </div>
     </template>
   </UDashboardPanel>

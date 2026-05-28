@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Product } from '~/types/product'
-import { useProductFormStore } from '~/stores/productForm'
 
 const props = defineProps<{
   product?: Product
@@ -18,8 +17,13 @@ const emit = defineEmits<{
 }>()
 
 const productFormStore = useProductFormStore()
+
 const config = useRuntimeConfig()
-const storefrontUrl = computed(() => String(config.public.storefrontUrl || 'http://localhost:3001').replace(/\/$/, ''))
+
+const storefrontUrl = computed(() => {
+  return String(config.public.storefrontUrl || 'http://localhost:3001').replace(/\/$/, '')
+})
+
 const { brands, fetchBrands } = useBrands()
 const { categoryTree, fetchCategoryTree } = useCategories()
 const { attributes, fetchAttributes } = useAttributes()
@@ -28,147 +32,96 @@ const { collections, fetchCollections } = useCollections()
 const activeTab = ref('general')
 
 const tabs = computed(() => [
-  { key: 'general', label: 'Essentiel', slot: 'general' as const },
-  { key: 'pricing', label: 'Prix et stock', slot: 'pricing' as const },
   {
-    key: 'media',
-    label: 'Images',
-    badge: productFormStore.images.length || undefined,
-    slot: 'media' as const
+    label: 'Essentiel',
+    value: 'general',
+    icon: 'i-lucide-info',
+    slot: 'general' as const,
   },
   {
-    key: 'variations',
+    label: 'Prix et stock',
+    value: 'pricing',
+    icon: 'i-lucide-banknote',
+    slot: 'pricing' as const,
+  },
+  {
+    label: 'Images',
+    value: 'media',
+    icon: 'i-lucide-images',
+    badge: productFormStore.images.length || undefined,
+    slot: 'media' as const,
+  },
+  {
     label: 'Variations',
+    value: 'variations',
+    icon: 'i-lucide-layers',
     badge: productFormStore.formData.variations.length || undefined,
     disabled: !productFormStore.formData.is_variable,
-    slot: 'variations' as const
+    slot: 'variations' as const,
   },
-  { key: 'seo', label: 'Référencement', slot: 'seo' as const },
-  { key: 'advanced', label: 'Publication', slot: 'advanced' as const }
+  {
+    label: 'Référencement',
+    value: 'seo',
+    icon: 'i-lucide-search',
+    slot: 'seo' as const,
+  },
+  {
+    label: 'Publication',
+    value: 'advanced',
+    icon: 'i-lucide-settings-2',
+    slot: 'advanced' as const,
+  },
 ])
 
-const pageTitle = computed(() =>
-  props.mode === 'create'
-    ? 'Créer un produit'
-    : props.product?.name || 'Modifier le produit'
-)
-
-const pageDescription = computed(() =>
-  props.mode === 'create'
-    ? 'Renseignez les informations nécessaires pour publier un produit proprement.'
-    : 'Modifiez les informations visibles sur la boutique et les paramètres internes.'
-)
-
-const saveButtonLabel = computed(() => props.mode === 'create' ? 'Créer le produit' : 'Sauvegarder')
-const saveButtonIcon = computed(() => props.mode === 'create' ? 'i-lucide-plus' : 'i-lucide-save')
-
 onMounted(async () => {
-  await Promise.all([fetchBrands(), fetchCategoryTree(), fetchAttributes(), fetchCollections()])
+  await Promise.all([
+    fetchBrands(),
+    fetchCategoryTree(),
+    fetchAttributes(),
+    fetchCollections(),
+  ])
 })
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar>
-        <template #left>
-          <UButton
-icon="i-lucide-arrow-left"
-color="neutral"
-variant="ghost"
-@click="emit('cancel')" />
-          <div class="ml-4">
-            <h1 class="text-xl font-semibold">{{ pageTitle }}</h1>
-            <p class="text-sm text-gray-500">{{ pageDescription }}</p>
-          </div>
-        </template>
+  <div class="flex flex-col gap-6 xl:flex-row xl:items-start">
+    <!-- Formulaire principal -->
+    <div class="min-w-0 flex-1">
+      <UCard :ui="{ body: 'p-0' }">
+        <UTabs v-model="activeTab" :items="tabs" class="w-full" :ui="{
+          list: 'mx-4 mt-4',
+          content: 'mt-0',
+        }">
+          <template #general>
+            <ProductEditGeneral :brands="brands" :categories="categoryTree" :collections="collections" :mode="mode" />
+          </template>
 
-        <template #right>
-          <div class="flex items-center gap-2">
-            <UBadge
-v-if="mode === 'edit' && hasUnsavedChanges"
-color="warning"
-variant="soft"
-size="sm">
-              Non sauvegardé
-            </UBadge>
+          <template #pricing>
+            <ProductEditPricing :mode="mode" />
+          </template>
 
-            <UDropdownMenu
-v-if="mode === 'edit'"
-:items="[
-              [
-                { label: 'Dupliquer', icon: 'i-lucide-copy', onSelect: () => emit('duplicate') },
-                {
-                  label: 'Voir sur le site',
-                  icon: 'i-lucide-external-link',
-                  to: product?.slug ? `${storefrontUrl}/products/${product.slug}` : undefined,
-                  target: '_blank',
-                  external: true
-                }
-              ],
-              [{
-                label: 'Supprimer',
-                icon: 'i-lucide-trash',
-                color: 'error',
-                onSelect: () => emit('delete')
-              }]
-            ]">
-              <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
-            </UDropdownMenu>
+          <template #media>
+            <ProductEditMedia :mode="mode" />
+          </template>
 
-            <!-- Cancel button (create only) -->
-            <UButton
-v-if="mode === 'create'"
-label="Annuler"
-color="neutral"
-variant="ghost"
-@click="emit('cancel')" />
+          <template #variations>
+            <ProductEditVariations :attributes="attributes" :categories="categoryTree" :mode="mode" />
+          </template>
 
-            <!-- Save button -->
-            <UButton
-:label="saveButtonLabel"
-:icon="saveButtonIcon"
-color="primary"
-:loading="isSaving"
-              :disabled="mode === 'create' ? !isFormValid : !hasUnsavedChanges"
-@click="emit('save')" />
-          </div>
-        </template>
-      </UDashboardNavbar>
-    </template>
+          <template #seo>
+            <ProductEditSeo :mode="mode" />
+          </template>
 
-    <template #body>
-      <div class="flex flex-col lg:flex-row gap-6">
-        <ProductEditSidebar :product="product" :mode="mode" />
+          <template #advanced>
+            <ProductEditAdvanced :product-id="product?.id" :mode="mode" />
+          </template>
+        </UTabs>
+      </UCard>
+    </div>
 
-        <div class="flex-1">
-          <UTabs v-model="activeTab" :items="tabs" class="w-full">
-            <template #general>
-              <ProductEditGeneral :brands="brands" :categories="categoryTree" :collections="collections" :mode="mode" />
-            </template>
-
-            <template #pricing>
-              <ProductEditPricing :mode="mode" />
-            </template>
-
-            <template #media>
-              <ProductEditMedia :mode="mode" />
-            </template>
-
-            <template #variations>
-              <ProductEditVariations :attributes="attributes" :categories="categoryTree" :mode="mode" />
-            </template>
-
-            <template #seo>
-              <ProductEditSeo :mode="mode" />
-            </template>
-
-            <template #advanced>
-              <ProductEditAdvanced :product-id="product?.id" :mode="mode" />
-            </template>
-          </UTabs>
-        </div>
-      </div>
-    </template>
-  </UDashboardPanel>
+    <!-- Aperçu / actions rapides -->
+    <div class="w-full xl:w-[340px] shrink-0 product-sidebar-sticky">
+      <ProductEditSidebar :product="product" :mode="mode" />
+    </div>
+  </div>
 </template>

@@ -67,10 +67,7 @@ async function loadProduct() {
   }
 
   skipWatchers.value = true
-
-  // Initialiser le store avec les données du produit
   productFormStore.initializeFromProduct(data)
-
   await nextTick()
   hasUnsavedChanges.value = false
   skipWatchers.value = false
@@ -93,7 +90,6 @@ async function handleSave() {
 
     if (updated) {
       toast.add({ title: 'Produit mis à jour', color: 'success' })
-
       await loadProduct()
     }
   } catch (error: unknown) {
@@ -104,7 +100,6 @@ async function handleSave() {
 
     if (validationErrors) {
       logValidationErrors(validationErrors)
-
       Object.keys(validationErrors).forEach(field => {
         const messages = validationErrors[field]
         toast.add({
@@ -116,11 +111,7 @@ async function handleSave() {
       })
     } else {
       const message = error instanceof Error ? error.message : 'Une erreur est survenue'
-      toast.add({
-        title: 'Erreur de sauvegarde',
-        description: message,
-        color: 'error'
-      })
+      toast.add({ title: 'Erreur de sauvegarde', description: message, color: 'error' })
     }
   } finally {
     isSaving.value = false
@@ -136,10 +127,7 @@ async function handleDuplicate() {
 }
 
 function handleDelete() {
-  deleteModal.value = {
-    open: true,
-    ids: [productId]
-  }
+  deleteModal.value = { open: true, ids: [productId] }
 }
 
 function handleDeleteSuccess() {
@@ -148,15 +136,11 @@ function handleDeleteSuccess() {
 }
 
 watch(() => productFormStore.formData, () => {
-  if (!skipWatchers.value) {
-    hasUnsavedChanges.value = true
-  }
+  if (!skipWatchers.value) hasUnsavedChanges.value = true
 }, { deep: true })
 
 watch(() => productFormStore.images, () => {
-  if (!skipWatchers.value) {
-    hasUnsavedChanges.value = true
-  }
+  if (!skipWatchers.value) hasUnsavedChanges.value = true
 }, { deep: true })
 
 onMounted(loadProduct)
@@ -171,25 +155,62 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <template>
-  <div class="w-full">
-    <ProductForm
-      v-if="product"
-      :product="product"
-      :is-saving="isSaving"
-      :has-unsaved-changes="hasUnsavedChanges"
-      mode="edit"
-      @save="handleSave"
-      @duplicate="handleDuplicate"
-      @delete="handleDelete"
-      @cancel="router.push('/products')" />
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar>
+        <template #left>
+          <UButton icon="i-lucide-arrow-left" color="neutral" variant="ghost" size="sm" aria-label="Retour aux produits"
+            @click="router.push('/products')" />
+          <div class="ml-3">
+            <p class="text-xs font-medium text-primary">Catalogue</p>
+            <h1 class="text-lg font-semibold text-gray-950 dark:text-white leading-tight">
+              {{ product?.name || 'Modifier le produit' }}
+            </h1>
+          </div>
+        </template>
 
-    <div v-else-if="isLoading" class="p-8">
-      <USkeleton class="h-8 w-64 mb-4" />
-      <USkeleton class="h-32 w-full" />
-    </div>
+        <template #right>
+          <div class="flex items-center gap-2">
+            <UBadge v-if="hasUnsavedChanges" color="warning" variant="soft">
+              Modifications non sauvegardées
+            </UBadge>
 
-    <ClientOnly>
-      <ProductDeleteModal v-model:open="deleteModal.open" :ids="deleteModal.ids" @success="handleDeleteSuccess" />
-    </ClientOnly>
-  </div>
+            <UDropdownMenu v-if="product" :items="[
+              [
+                { label: 'Dupliquer', icon: 'i-lucide-copy', onSelect: () => handleDuplicate() },
+              ],
+              [
+                { label: 'Supprimer', icon: 'i-lucide-trash', color: 'error', onSelect: () => handleDelete() },
+              ],
+            ]">
+              <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
+            </UDropdownMenu>
+
+            <UButton label="Annuler" color="neutral" variant="ghost" :disabled="isSaving"
+              @click="router.push('/products')" />
+
+            <UButton label="Sauvegarder" icon="i-lucide-save" color="primary" :loading="isSaving"
+              :disabled="!hasUnsavedChanges" @click="handleSave" />
+          </div>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <div v-if="isLoading" class="p-8 space-y-4">
+        <USkeleton class="h-8 w-64" />
+        <USkeleton class="h-32 w-full" />
+        <USkeleton class="h-32 w-full" />
+      </div>
+
+      <div v-else-if="product" class="p-6">
+        <ProductForm :product="product" :is-saving="isSaving" :has-unsaved-changes="hasUnsavedChanges" mode="edit"
+          @save="handleSave" @duplicate="handleDuplicate" @delete="handleDelete" @cancel="router.push('/products')" />
+      </div>
+    </template>
+  </UDashboardPanel>
+
+  <ClientOnly>
+    <ProductDeleteModal v-model:open="deleteModal.open" :ids="deleteModal.ids" @success="handleDeleteSuccess" />
+  </ClientOnly>
 </template>
