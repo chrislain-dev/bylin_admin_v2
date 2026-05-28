@@ -2,22 +2,9 @@
 import { computed, watch } from 'vue'
 import type { VariationFormData } from '~/types/product'
 import type { Category } from '~/types/category'
+import type { Attribute } from '~/types/attribute'
 import type { SelectMenuItem } from '@nuxt/ui'
 import { useProductFormStore } from '~/stores/productForm'
-
-// Définir les types pour les attributs
-interface Attribute {
-  id: string
-  name: string
-  type?: string
-  values?: AttributeValue[]
-}
-
-interface AttributeValue {
-  id: string
-  label: string
-  color_code?: string
-}
 
 const props = defineProps<{
   attributes: Attribute[]

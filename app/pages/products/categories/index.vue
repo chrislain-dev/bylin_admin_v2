@@ -252,7 +252,7 @@ function getRowItems(category: Category) {
       {
         label: 'Voir les produits',
         icon: 'i-lucide-package',
-        onSelect: () => navigateTo(`/admin/products?category=${category.id}`),
+        onSelect: () => navigateTo(`/products?category_id=${category.id}`),
         disabled: category.products_count === 0
       },
       {

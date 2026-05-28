@@ -57,6 +57,7 @@ interface BaseAdjustmentPayload {
  * On exige quantity et operation, on interdit variations.
  */
 export interface SimpleStockAdjustment extends BaseAdjustmentPayload {
+  variation_id?: string | null;
   quantity: number;
   operation: StockOperation;
   variations?: never; // Interdit d'avoir des variations ici
@@ -200,6 +201,19 @@ export interface InventoryExportOptions {
 export interface InventoryExportResult {
   file_url: string;
   expires_at: string;
+}
+
+export type InventoryAlertFrequency = "realtime" | "hourly" | "daily" | "weekly";
+
+export interface InventoryNotificationSettings {
+  email_low_stock: boolean;
+  email_out_of_stock: boolean;
+  email_daily_summary: boolean;
+  push_low_stock: boolean;
+  push_out_of_stock: boolean;
+  default_low_stock_threshold: number;
+  alert_emails: string;
+  alert_frequency: InventoryAlertFrequency;
 }
 
 // --- CONSTANTS & HELPERS ---

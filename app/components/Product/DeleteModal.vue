@@ -134,12 +134,10 @@ async function handleDelete(): Promise<void> {
 
   switch (actionType.value) {
     case 'restore':
-      // TODO: A Implémenter
-      success = false
+      success = await restoreProducts(props.ids)
       break
     case 'force':
-      // TODO: A Implémenter
-      success = false
+      success = await forceDeleteProducts(props.ids)
       break
     default:
       success = await deleteProducts(props.ids)

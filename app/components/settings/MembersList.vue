@@ -1,31 +1,47 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { Member } from '~/types'
+import type { Member, MemberRole } from '~/types/setting'
 
-defineProps<{
+const props = defineProps<{
   members: Member[]
 }>()
 
-const items = [{
-  label: 'Edit member',
-  onSelect: () => console.log('Edit member')
-}, {
-  label: 'Remove member',
-  color: 'error' as const,
-  onSelect: () => console.log('Remove member')
-}] satisfies DropdownMenuItem[]
+const emit = defineEmits<{
+  edit: [member: Member]
+  remove: [member: Member]
+  updateRole: [member: Member, role: MemberRole]
+}>()
+
+function menuItems(member: Member): DropdownMenuItem[] {
+  return [
+    {
+      label: 'Modifier le membre',
+      icon: 'i-lucide-pencil',
+      onSelect: () => emit('edit', member)
+    },
+    {
+      label: 'Supprimer le membre',
+      icon: 'i-lucide-trash-2',
+      color: 'error' as const,
+      onSelect: () => emit('remove', member)
+    }
+  ]
+}
+
+const roleItems: MemberRole[] = ['manager', 'admin', 'super_admin']
 </script>
 
 <template>
   <ul role="list" class="divide-y divide-default">
     <li
-      v-for="(member, index) in members"
-      :key="index"
+      v-for="member in props.members"
+      :key="member.id"
       class="flex items-center justify-between gap-3 py-3 px-4 sm:px-6"
     >
       <div class="flex items-center gap-3 min-w-0">
         <UAvatar
-          v-bind="member.avatar"
+          :src="member.avatar_url || undefined"
+          :alt="member.name"
           size="md"
         />
 
@@ -34,7 +50,7 @@ const items = [{
             {{ member.name }}
           </p>
           <p class="text-muted truncate">
-            {{ member.username }}
+            {{ member.email }}
           </p>
         </div>
       </div>
@@ -42,16 +58,18 @@ const items = [{
       <div class="flex items-center gap-3">
         <USelect
           :model-value="member.role"
-          :items="['member', 'owner']"
+          :items="roleItems"
           color="neutral"
           :ui="{ value: 'capitalize', item: 'capitalize' }"
+          @update:model-value="(role) => emit('updateRole', member, role as MemberRole)"
         />
 
-        <UDropdownMenu :items="items" :content="{ align: 'end' }">
+        <UDropdownMenu :items="menuItems(member)" :content="{ align: 'end' }">
           <UButton
             icon="i-lucide-ellipsis-vertical"
             color="neutral"
             variant="ghost"
+            :aria-label="`Actions pour ${member.name}`"
           />
         </UDropdownMenu>
       </div>

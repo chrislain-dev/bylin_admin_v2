@@ -26,7 +26,7 @@ export const usePromotions = () => {
   const loading = useState<boolean>("promotions:loading", () => false);
   const loadingState = useState<LoadingState>(
     "promotions:loadingState",
-    () => "idle"
+    () => "idle",
   );
 
   const pagination = useState("promotions:pagination", () => ({
@@ -50,11 +50,11 @@ export const usePromotions = () => {
 
   const currentPromotion = useState<Promotion | null>(
     "promotions:current",
-    () => null
+    () => null,
   );
   const statistics = useState<PromotionStatistics | null>(
     "promotions:statistics",
-    () => null
+    () => null,
   );
   const lastError = useState<string | null>("promotions:error", () => null);
 
@@ -88,19 +88,19 @@ export const usePromotions = () => {
   const hasActiveFilters = computed(() => {
     return Boolean(
       filters.value.search ||
-        filters.value.type ||
-        filters.value.status !== "all" ||
-        filters.value.only_trashed ||
-        filters.value.with_trashed
+      filters.value.type ||
+      filters.value.status !== "all" ||
+      filters.value.only_trashed ||
+      filters.value.with_trashed,
     );
   });
 
   const totalPages = computed(() =>
-    Math.ceil(pagination.value.total / pagination.value.pageSize)
+    Math.ceil(pagination.value.total / pagination.value.pageSize),
   );
 
   const activePromotions = computed(() =>
-    promotions.value.filter((p) => p.is_active && !p.deleted_at)
+    promotions.value.filter((p) => p.is_active && !p.deleted_at),
   );
 
   // ============================================================================
@@ -136,7 +136,7 @@ export const usePromotions = () => {
 
       const response = await client<ApiResponse<LaravelPaginator<Promotion>>>(
         "/api/v1/admin/promotions",
-        { method: "GET", params }
+        { method: "GET", params },
       );
 
       if (response.success) {
@@ -172,7 +172,7 @@ export const usePromotions = () => {
     try {
       const response = await client<ApiResponse<Promotion>>(
         `/api/v1/admin/promotions/${id}`,
-        { method: "GET" }
+        { method: "GET" },
       );
 
       if (response.success) {
@@ -196,7 +196,7 @@ export const usePromotions = () => {
   }
 
   async function createPromotion(
-    data: FormData | Record<string, unknown>
+    data: FormData | Record<string, unknown>,
   ): Promise<boolean> {
     loading.value = true;
     lastError.value = null;
@@ -204,7 +204,7 @@ export const usePromotions = () => {
     try {
       const response = await client<ApiResponse<Promotion>>(
         "/api/v1/admin/promotions",
-        { method: "POST", body: data }
+        { method: "POST", body: data },
       );
 
       if (response.success) {
@@ -232,7 +232,7 @@ export const usePromotions = () => {
 
   async function updatePromotion(
     id: string,
-    data: FormData | Record<string, unknown>
+    data: FormData | Record<string, unknown>,
   ): Promise<boolean> {
     loading.value = true;
     lastError.value = null;
@@ -247,7 +247,7 @@ export const usePromotions = () => {
         {
           method: data instanceof FormData ? "POST" : "PUT",
           body: data,
-        }
+        },
       );
 
       if (response.success) {
@@ -284,12 +284,12 @@ export const usePromotions = () => {
       if (ids.length === 1) {
         response = await client<ApiResponse<null>>(
           `/api/v1/admin/promotions/${ids[0]}`,
-          { method: "DELETE" }
+          { method: "DELETE" },
         );
       } else {
         response = await client<ApiResponse<null>>(
           "/api/v1/admin/promotions/bulk/destroy",
-          { method: "POST", body: { ids } }
+          { method: "POST", body: { ids } },
         );
       }
 
@@ -337,12 +337,12 @@ export const usePromotions = () => {
       if (ids.length === 1) {
         response = await client<ApiResponse<null>>(
           `/api/v1/admin/promotions/${ids[0]}/restore`,
-          { method: "POST" }
+          { method: "POST" },
         );
       } else {
         response = await client<ApiResponse<null>>(
           "/api/v1/admin/promotions/bulk/restore",
-          { method: "POST", body: { ids } }
+          { method: "POST", body: { ids } },
         );
       }
 
@@ -388,7 +388,7 @@ export const usePromotions = () => {
         {
           method: "PUT",
           body: { is_active: isActive },
-        }
+        },
       );
 
       if (response.success) {
@@ -418,41 +418,21 @@ export const usePromotions = () => {
   }
 
   async function validateCoupon(
-    code: string,
-    cartAmount?: number
+    _code: string,
+    _cartAmount?: number,
   ): Promise<CouponValidation> {
-    try {
-      const response = await client<ApiResponse<CouponValidation>>(
-        "/api/v1/promotions/validate",
-        {
-          method: "POST",
-          body: { code, cart_amount: cartAmount },
-        }
-      );
-
-      if (response.success) {
-        return response.data;
-      }
-
-      return {
-        valid: false,
-        error: response.message || "Code invalide",
-      };
-    } catch (error: unknown) {
-      const errorMessage = getApiErrorMessage(error);
-
-      return {
-        valid: false,
-        error: errorMessage || "Erreur de validation",
-      };
-    }
+    return {
+      valid: false,
+      error:
+        "La validation publique des coupons n’est pas exposée par l’API admin.",
+    };
   }
 
   async function fetchStatistics(): Promise<PromotionStatistics | null> {
     try {
       const response = await client<ApiResponse<PromotionStatistics>>(
         "/api/v1/admin/promotions/statistics",
-        { method: "GET" }
+        { method: "GET" },
       );
 
       if (response.success) {

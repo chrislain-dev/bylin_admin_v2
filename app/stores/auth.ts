@@ -57,6 +57,16 @@ interface AuthError {
   errors?: Record<string, string[]>;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getNestedRecord(value: unknown, key: string): Record<string, unknown> | null {
+  if (!isRecord(value)) return null;
+  const nested = value[key];
+  return isRecord(nested) ? nested : null;
+}
+
 export const useAuthStore = defineStore("auth", () => {
   const toast = useToast();
   const router = useRouter();
@@ -121,13 +131,34 @@ export const useAuthStore = defineStore("auth", () => {
   /**
    * Formater les erreurs de l'API
    */
-  function formatError(err: any): AuthError {
-    const status = err?.status || err?.response?.status || 500;
-    const message =
-      err?.data?.message ||
-      err?.message ||
+  function formatError(err: unknown): AuthError {
+    const errorRecord = isRecord(err) ? err : {};
+    const response = getNestedRecord(err, "response");
+    const data = getNestedRecord(err, "data") ?? getNestedRecord(response, "_data");
+
+    const rawStatus =
+      errorRecord.statusCode ??
+      errorRecord.status ??
+      response?.status ??
+      500;
+
+    const status = typeof rawStatus === "number" ? rawStatus : Number(rawStatus) || 500;
+
+    const rawMessage =
+      data?.message ??
+      errorRecord.message ??
       "Une erreur est survenue lors de l'authentification.";
-    const errors = err?.data?.errors || {};
+
+    const message = typeof rawMessage === "string"
+      ? rawMessage
+      : "Une erreur est survenue lors de l'authentification.";
+
+    const rawErrors = data?.errors;
+    const errors = isRecord(rawErrors)
+      ? Object.fromEntries(
+          Object.entries(rawErrors).filter(([, value]) => Array.isArray(value))
+        ) as Record<string, string[]>
+      : {};
 
     return { status, message, errors };
   }
@@ -205,16 +236,21 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
 
     try {
-      await sanctumLogin(credentials);
+      await sanctumLogin({
+        email: credentials.email.trim().toLowerCase(),
+        password: credentials.password,
+        remember: credentials.remember ?? false,
+      });
 
-      // Succès - Redirection gérée par nuxt-auth-sanctum
+      await refreshIdentity();
+
       toast.add({
         title: "Connexion réussie",
         description: `Bienvenue ${user.value?.name || ""}!`,
         icon: "i-lucide-check-circle",
         color: "success",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       const authError = formatError(err);
       error.value = authError;
       showErrorToast(authError);
@@ -242,11 +278,13 @@ export const useAuthStore = defineStore("auth", () => {
       });
 
       // Redirection gérée par nuxt-auth-sanctum
-    } catch (err: any) {
+    } catch (err: unknown) {
       const authError = formatError(err);
       error.value = authError;
 
-      console.error("Erreur lors de la déconnexion", authError);
+      if (import.meta.dev) {
+        console.error("Erreur lors de la déconnexion", authError);
+      }
 
       toast.add({
         title: "Erreur de déconnexion",
@@ -265,10 +303,13 @@ export const useAuthStore = defineStore("auth", () => {
   async function refresh(): Promise<void> {
     try {
       await refreshIdentity();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const authError = formatError(err);
       error.value = authError;
-      console.error("Erreur lors du rafraîchissement", authError);
+
+      if (import.meta.dev) {
+        console.error("Erreur lors du rafraîchissement", authError);
+      }
     }
   }
 

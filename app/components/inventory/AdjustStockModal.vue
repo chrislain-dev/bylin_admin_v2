@@ -182,7 +182,6 @@ async function onSubmit(event: FormSubmitEvent<AdjustStockFormSchema>): Promise<
       }
     }
 
-    console.log('Payload ajustement stock:', payload)
 
     // Appel API via le composable
     const success = await adjustStock(payload)

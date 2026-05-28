@@ -149,11 +149,6 @@ const links = computed(() => {
             description: 'Admins & Managers',
             to: '/settings/members',
             onSelect: closeMenu
-          }),
-          createNavigationItem({
-            label: 'Rôles & Permissions',
-            to: '/settings/roles',
-            onSelect: closeMenu
           })
         ]
       }),

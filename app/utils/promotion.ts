@@ -104,7 +104,7 @@ export function getPromotionStatus(promotion: Promotion): PromotionStatus {
 export const getStatusLabel = (status: PromotionStatus): string =>
   STATUS_LABELS[status];
 
-export const getStatusColor = (status: PromotionStatus): string =>
+export const getPromotionStatusColor = (status: PromotionStatus): string =>
   STATUS_COLORS[status];
 
 /* =========================================================================

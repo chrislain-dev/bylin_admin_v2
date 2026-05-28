@@ -433,7 +433,7 @@ onMounted(async () => {
         <UCard
           class="cursor-pointer hover:ring-2 hover:ring-orange-500/50 transition-all"
           :ui="{ body: 'p-4' }"
-          @click="router.push('/inventory/low-stock')">
+          @click="setStockStatus('low_stock')">
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
@@ -453,7 +453,7 @@ onMounted(async () => {
         <UCard
           class="cursor-pointer hover:ring-2 hover:ring-red-500/50 transition-all"
           :ui="{ body: 'p-4' }"
-          @click="router.push('/inventory/low-stock?filter=out')">
+          @click="setStockStatus('out_of_stock')">
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">

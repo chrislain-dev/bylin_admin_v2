@@ -18,9 +18,12 @@ const emit = defineEmits<{
 }>()
 
 const productFormStore = useProductFormStore()
+const config = useRuntimeConfig()
+const storefrontUrl = computed(() => String(config.public.storefrontUrl || 'http://localhost:3001').replace(/\/$/, ''))
 const { brands, fetchBrands } = useBrands()
 const { categoryTree, fetchCategoryTree } = useCategories()
 const { attributes, fetchAttributes } = useAttributes()
+const { collections, fetchCollections } = useCollections()
 
 const activeTab = ref('general')
 
@@ -60,7 +63,7 @@ const saveButtonLabel = computed(() => props.mode === 'create' ? 'Créer le prod
 const saveButtonIcon = computed(() => props.mode === 'create' ? 'i-lucide-plus' : 'i-lucide-save')
 
 onMounted(async () => {
-  await Promise.all([fetchBrands(), fetchCategoryTree(), fetchAttributes()])
+  await Promise.all([fetchBrands(), fetchCategoryTree(), fetchAttributes(), fetchCollections()])
 })
 </script>
 
@@ -98,8 +101,9 @@ v-if="mode === 'edit'"
                 {
                   label: 'Voir sur le site',
                   icon: 'i-lucide-external-link',
-                  to: `/products/${product?.slug}`,
-                  target: '_blank'
+                  to: product?.slug ? `${storefrontUrl}/products/${product.slug}` : undefined,
+                  target: '_blank',
+                  external: true
                 }
               ],
               [{
@@ -140,7 +144,7 @@ color="primary"
         <div class="flex-1">
           <UTabs v-model="activeTab" :items="tabs" class="w-full">
             <template #general>
-              <ProductEditGeneral :brands="brands" :categories="categoryTree" :mode="mode" />
+              <ProductEditGeneral :brands="brands" :categories="categoryTree" :collections="collections" :mode="mode" />
             </template>
 
             <template #pricing>

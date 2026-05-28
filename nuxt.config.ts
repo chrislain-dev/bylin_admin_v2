@@ -10,6 +10,20 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   // ========================================
+  // Fonts
+  // ========================================
+  // The admin dashboard must build without external font provider calls.
+  fonts: {
+    providers: {
+      google: false,
+      googleicons: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+    },
+  },
+
+  // ========================================
   // Configuration Sanctum
   // ========================================
   sanctum: {
@@ -49,7 +63,7 @@ export default defineNuxtConfig({
       allow404WithoutAuth: true,
     },
 
-    origin: "http://localhost:3000",
+    origin: process.env.NUXT_PUBLIC_APP_URL || "http://localhost:3000",
   },
 
   // ========================================
@@ -60,6 +74,7 @@ export default defineNuxtConfig({
       appName: process.env.NUXT_PUBLIC_APP_NAME || "Bylin Admin",
       apiUrl: process.env.NUXT_PUBLIC_API_URL || "http://localhost:8000",
       appUrl: process.env.NUXT_PUBLIC_APP_URL || "http://localhost:3000",
+      storefrontUrl: process.env.NUXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001",
       debug: process.env.NUXT_PUBLIC_DEBUG || "false",
     },
   },
@@ -68,11 +83,17 @@ export default defineNuxtConfig({
   // Optimisations Production
   // ========================================
   nitro: {
+    preset: "node-server",
     compressPublicAssets: true,
     prerender: {
       crawlLinks: false,
-      routes: ["/"],
+      routes: [],
     },
+  },
+
+  // Admin dashboard = authenticated SSR app, not a static website to prerender.
+  routeRules: {
+    "/**": { prerender: false },
   },
 
   // ========================================
@@ -83,18 +104,12 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           manualChunks: {
-            "nuxt-ui": ["@nuxt/ui"],
             pinia: ["pinia"],
           },
         },
       },
     },
   },
-
-  // ========================================
-  // Sécurité
-  // ========================================
-  routeRules: {},
 
   // ========================================
   // Dev Tools

@@ -5,13 +5,17 @@ const router = useRouter()
 
 definePageMeta({
   layout: 'auth',
+  sanctum: {
+    excluded: true,
+  },
 })
 
 const showPassword = ref(false)
 
 const form = reactive({
   email: '',
-  password: ''
+  password: '',
+  remember: false,
 })
 
 const handleLogin = async () => {
@@ -26,12 +30,18 @@ const handleLogin = async () => {
   }
 
   try {
-    await auth.login(form)
-    // La redirection est gérée automatiquement par nuxt-auth-sanctum
-    // ou par le store auth
+    await auth.login({
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+      remember: form.remember,
+    })
+
+    await router.push('/')
   } catch (error) {
-    // Les erreurs sont déjà gérées dans le store
-    console.error('Erreur de connexion:', error)
+    // Les erreurs sont déjà gérées dans le store.
+    if (import.meta.dev) {
+      console.error('Erreur de connexion:', error)
+    }
   }
 }
 </script>
@@ -73,8 +83,11 @@ const handleLogin = async () => {
         </UInput>
       </UFormField>
 
-      <!-- Mot de passe oublié -->
-      <div class="flex items-center justify-end">
+
+      <!-- Remember me -->
+      <div class="flex items-center justify-between gap-4">
+        <UCheckbox v-model="form.remember" label="Rester connecté" />
+
         <NuxtLink to="/auth/forgot-password"
           class="text-sm font-medium text-primary-500 hover:text-primary-600 dark:text-primary-400 transition-colors">
           Mot de passe oublié ?

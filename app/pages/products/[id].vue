@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProductFormData, VariationFormData } from '~/types/product'
+import { buildProductPayload } from '~/utils/productPayload'
 
 definePageMeta({
   layout: 'default',
@@ -83,60 +83,10 @@ async function handleSave() {
       .map(img => img.file)
       .filter((file): file is File => !!file)
 
-    const dataToSend: Partial<ProductFormData> = {
-      ...productFormStore.formData,
+    const dataToSend = buildProductPayload(productFormStore.formData, {
       images: newImageFiles,
-      images_to_delete: productFormStore.imagesToDelete,
-      price: Math.max(0.01, productFormStore.formData.price || 0),
-      stock_quantity: Math.max(0, productFormStore.formData.stock_quantity || 0),
-      low_stock_threshold: Math.max(0, productFormStore.formData.low_stock_threshold || 0)
-    }
-
-    // Nettoyer les champs optionnels
-    if (!dataToSend.compare_price || dataToSend.compare_price <= 0) {
-      delete dataToSend.compare_price
-    }
-
-    if (!dataToSend.cost_price || dataToSend.cost_price <= 0) {
-      delete dataToSend.cost_price
-    }
-
-    if (!dataToSend.preorder_limit || dataToSend.preorder_limit <= 0) {
-      delete dataToSend.preorder_limit
-    }
-
-    if (dataToSend.is_variable && dataToSend.variations &&dataToSend.variations.length > 0) {
-      dataToSend.variations = dataToSend.variations.map(
-        (variation: VariationFormData) => {
-          const cleanVariation: VariationFormData = {
-            ...variation,
-            variation_name: variation.variation_name || 'Nouvelle variation',
-            price: Math.max(0.01, variation.price || 0),
-            stock_quantity: Math.max(0, variation.stock_quantity || 0),
-            stock_status: variation.stock_status || (variation.stock_quantity > 0 ? 'in_stock' : 'out_of_stock'),
-            is_active: variation.is_active !== false,
-            attributes: variation.attributes || {}
-          }
-
-          // Nettoyer
-          if (!cleanVariation.compare_price || cleanVariation.compare_price <= 0) delete cleanVariation.compare_price
-          if (!cleanVariation.cost_price || cleanVariation.cost_price <= 0) delete cleanVariation.cost_price
-          if (!cleanVariation.sku) delete cleanVariation.sku
-          if (!cleanVariation.barcode) delete cleanVariation.barcode
-
-          return cleanVariation
-        }
-      )
-    } else {
-      dataToSend.variations = []
-    }
-
-    // Authentification Bylin
-    if (dataToSend.requires_authenticity) {
-      dataToSend.authenticity_codes_count = Math.max(1, dataToSend.authenticity_codes_count || 10)
-    } else {
-      delete dataToSend.authenticity_codes_count
-    }
+      imagesToDelete: productFormStore.imagesToDelete,
+    })
 
     const updated = await updateProduct(productId, dataToSend)
 
@@ -146,8 +96,6 @@ async function handleSave() {
       await loadProduct()
     }
   } catch (error: unknown) {
-    console.error('Erreur de sauvegarde:', error)
-
     const validationErrors =
       typeof error === "object" && error !== null && "response" in error && (error as any).response?._data?.errors
         ? (error as any).response._data.errors as Record<string, string[]>

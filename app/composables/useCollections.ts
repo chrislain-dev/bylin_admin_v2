@@ -138,7 +138,6 @@ export const useCollections = () => {
         { method: "GET", params }
       );
 
-      console.log("Fetched collections response:", response);
 
       if (response.success) {
         state.value.collections = response.data;
@@ -284,17 +283,19 @@ export const useCollections = () => {
     state.value.error = null;
 
     try {
-      const isBulk = ids.length > 1;
-      const url = isBulk
-        ? "/api/v1/admin/collections/bulk/destroy"
-        : `/api/v1/admin/collections/${ids[0]}`;
+      // L’API ne propose pas encore de bulk delete pour les collections.
+      // On exécute donc les suppressions une par une pour éviter un endpoint 404.
+      const responses = await Promise.all(
+        ids.map((id) =>
+          client<ApiResponse<null>>(`/api/v1/admin/collections/${id}`, {
+            method: "DELETE",
+          })
+        )
+      );
 
-      const method = isBulk ? "POST" : "DELETE";
-      const body = isBulk ? { ids } : undefined;
+      const allSucceeded = responses.every((response) => response.success);
 
-      const response = await client<ApiResponse<null>>(url, { method, body });
-
-      if (response.success) {
+      if (allSucceeded) {
         toast.add({
           title: "Suppression réussie",
           description: `${ids.length} collection(s) supprimée(s)`,
@@ -306,7 +307,8 @@ export const useCollections = () => {
         await fetchCollections();
         return true;
       }
-      return false;
+
+      throw new Error("Certaines collections n’ont pas pu être supprimées");
     } catch (error: unknown) {
       state.value.loadingState = "error";
       state.value.error = getErrorMessage(error);
@@ -374,37 +376,26 @@ export const useCollections = () => {
     }
   }
 
-  async function reorderCollections(orderedIds: string[]): Promise<boolean> {
-    try {
-      const response = await client<ApiResponse<null>>(
-        "/api/v1/admin/collections/reorder",
-        {
-          method: "POST",
-          body: { ordered_ids: orderedIds },
-        }
-      );
+  async function reorderCollections(_orderedIds: string[]): Promise<boolean> {
+    toast.add({
+      title: "Réorganisation indisponible",
+      description: "L’API ne fournit pas encore d’endpoint de réorganisation des collections.",
+      color: "warning",
+      icon: "i-lucide-info",
+    });
 
-      if (response.success) {
-        toast.add({
-          title: "Ordre mis à jour",
-          color: "success",
-          icon: "i-lucide-check",
-        });
-
-        await fetchCollections();
-        return true;
-      }
-      return false;
-    } catch (error: unknown) {
-      handleError(error, "Erreur lors de la réorganisation");
-      return false;
-    }
+    return false;
   }
 
-  async function fetchStatistics(): Promise<void> {
+  async function fetchStatistics(collectionId?: string): Promise<void> {
+    if (!collectionId) {
+      state.value.statistics = null;
+      return;
+    }
+
     try {
       const response = await client<ApiResponse<CollectionStatistics>>(
-        "/api/v1/admin/collections/statistics",
+        `/api/v1/admin/collections/${collectionId}/statistics`,
         { method: "GET" }
       );
 

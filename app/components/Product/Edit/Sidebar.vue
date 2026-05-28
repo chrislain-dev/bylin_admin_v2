@@ -13,16 +13,23 @@ const toast = useToast()
 
 const stockAdjustment = ref({ operation: 'set' as 'set' | 'add' | 'sub', quantity: 0 })
 
-const statusOptions = [
+const isEditMode = computed(() => props.mode === 'edit' && !!props.product)
+
+const baseStatusOptions = [
   { label: 'Brouillon', value: 'draft', color: 'neutral' },
   { label: 'Actif', value: 'active', color: 'success' },
   { label: 'Inactif', value: 'inactive', color: 'error' },
-  { label: 'Rupture', value: 'out_of_stock', color: 'warning' },
-  { label: 'Précommande', value: 'preorder', color: 'info' },
-  { label: 'Arrêté', value: 'discontinued', color: 'neutral' }
 ]
 
-const isEditMode = computed(() => props.mode === 'edit' && !!props.product)
+const editOnlyStatusOptions = [
+  { label: 'Rupture', value: 'out_of_stock', color: 'warning' },
+  { label: 'Précommande', value: 'preorder', color: 'info' },
+  { label: 'Arrêté', value: 'discontinued', color: 'neutral' },
+]
+
+const statusOptions = computed(() =>
+  isEditMode.value ? [...baseStatusOptions, ...editOnlyStatusOptions] : baseStatusOptions
+)
 
 async function handleStockUpdate() {
   if (!props.product?.id) {
@@ -66,6 +73,16 @@ async function handleTogglePreorder() {
   }
 
   const enable = !productFormStore.formData.is_preorder_enabled
+
+  if (enable && !productFormStore.formData.preorder_available_date) {
+    toast.add({
+      title: 'Date requise',
+      description: 'Veuillez renseigner une date de disponibilité avant d’activer la précommande.',
+      color: 'warning',
+    })
+    return
+  }
+
   const success = await togglePreorder(
     props.product.id,
     enable,

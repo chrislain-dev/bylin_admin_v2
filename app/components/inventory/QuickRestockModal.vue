@@ -71,7 +71,7 @@ async function onSubmit(event: FormSubmitEvent<QuickRestockFormSchema>) {
       variation_id: props.item.variation_id ?? null,
       quantity: event.data.quantity,
       operation: 'add',
-      reason: 'purchase',
+      reason: 'restock',
       notes: event.data.notes || null
     })
 

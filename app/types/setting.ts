@@ -11,7 +11,6 @@ export interface Member {
   id: string;
   name: string;
   email: string;
-  username?: string;
   role: MemberRole;
   status: MemberStatus;
   avatar_url?: string | null;
@@ -86,7 +85,6 @@ export interface MemberFilters {
 export interface CreateMemberInput {
   name: string;
   email: string;
-  username: string;
   role: MemberRole;
   phone?: string;
   password?: string;
@@ -96,7 +94,6 @@ export interface CreateMemberInput {
 export interface UpdateMemberInput {
   name?: string;
   email?: string;
-  username?: string;
   role?: MemberRole;
   phone?: string;
   status?: MemberStatus;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buildProductPayload } from '~/utils/productPayload'
 
 definePageMeta({
   layout: 'default',
@@ -10,6 +11,12 @@ const router = useRouter()
 const toast = useToast()
 const productFormStore = useProductFormStore()
 const { createProduct } = useProduct()
+const { brands } = useBrands()
+
+const isBylinBrand = computed(() => {
+  const selected = brands.value.find(brand => brand.id === productFormStore.formData.brand_id)
+  return selected?.slug === 'bylin'
+})
 
 const isSaving = ref(false)
 
@@ -22,6 +29,7 @@ const isFormValid = computed(() => {
     form.name?.trim().length > 0 &&
     form.categories.length > 0 &&
     form.brand_id &&
+    (!isBylinBrand.value || !!form.collection_id) &&
     form.price > 0
   )
 
@@ -50,7 +58,9 @@ async function handleSave() {
       title: 'Erreur de validation',
       description: productFormStore.formData.is_variable
         ? 'Veuillez remplir tous les champs requis et ajouter au moins une variation valide'
-        : 'Veuillez remplir tous les champs requis',
+        : isBylinBrand.value && !productFormStore.formData.collection_id
+          ? 'Veuillez sélectionner une collection pour ce produit Bylin'
+          : 'Veuillez remplir tous les champs requis',
       color: 'error'
     })
     return
@@ -61,71 +71,12 @@ async function handleSave() {
   try {
     const imageFiles = productFormStore.images
       .filter(img => img.file)
-      .map(img => img.file)
+      .map(img => img.file as File)
 
-    const dataToSend: any = {
-      ...productFormStore.formData,
-      price: Math.max(0.01, productFormStore.formData.price || 0),
-      stock_quantity: Math.max(0, productFormStore.formData.stock_quantity || 0),
-      low_stock_threshold: Math.max(0, productFormStore.formData.low_stock_threshold || 0),
-      // Images
+    const dataToSend = buildProductPayload(productFormStore.formData, {
       images: imageFiles,
-      images_to_delete: []
-    }
-
-    if (!dataToSend.compare_price || dataToSend.compare_price <= 0) {
-      delete dataToSend.compare_price
-    }
-
-    if (!dataToSend.cost_price || dataToSend.cost_price <= 0) {
-      delete dataToSend.cost_price
-    }
-
-    if (!dataToSend.preorder_limit || dataToSend.preorder_limit <= 0) {
-      delete dataToSend.preorder_limit
-    }
-
-    // Gestion spécifique pour les variations
-    if (dataToSend.is_variable && dataToSend.variations.length > 0) {
-      dataToSend.variations = dataToSend.variations.map((variation: any) => {
-        const cleanVariation = {
-          ...variation,
-          variation_name: variation.variation_name || 'Nouvelle variation',
-          price: Math.max(0.01, variation.price || 0),
-          stock_quantity: Math.max(0, variation.stock_quantity || 0),
-          stock_status: variation.stock_status || (variation.stock_quantity > 0 ? 'in_stock' : 'out_of_stock'),
-          is_active: variation.is_active !== false,
-          attributes: variation.attributes || {}
-        }
-
-        if (!cleanVariation.compare_price || cleanVariation.compare_price <= 0) {
-          delete cleanVariation.compare_price
-        }
-
-        if (!cleanVariation.cost_price || cleanVariation.cost_price <= 0) {
-          delete cleanVariation.cost_price
-        }
-
-        if (!cleanVariation.sku) {
-          delete cleanVariation.sku
-        }
-
-        if (!cleanVariation.barcode) {
-          delete cleanVariation.barcode
-        }
-
-        return cleanVariation
-      })
-    } else {
-      dataToSend.variations = []
-    }
-
-    // Authentification Bylin
-    if (dataToSend.requires_authenticity) {
-      dataToSend.authenticity_codes_count = Math.max(1, dataToSend.authenticity_codes_count || 10)
-    } else {
-      delete dataToSend.authenticity_codes_count
-    }
+      imagesToDelete: [],
+    })
 
     const created = await createProduct(dataToSend)
 
@@ -139,8 +90,6 @@ async function handleSave() {
       router.push(`/products/${created.id}`)
     }
   } catch (error: any) {
-    console.error('Erreur complète:', error)
-
     if (error.response?.data?.errors) {
       const errors = error.response.data.errors
       Object.keys(errors).forEach(field => {

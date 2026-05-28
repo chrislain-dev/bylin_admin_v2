@@ -90,6 +90,7 @@ export interface ProductVariation {
 export interface Product {
   id: string;
   brand_id: string;
+  collection_id?: string | null;
 
   // Info de base
   name: string;
@@ -152,7 +153,6 @@ export interface Product {
   // Relations (Eager Loading)
   brand?: Brand | null;
   categories?: Category[];
-  collection_id?: string;
   variations?: ProductVariation[];
   media?: Media[]; // Spatie Media Library
   thumbnail_url?: string; // Helper souvent ajouté par l'API Resource
@@ -264,6 +264,7 @@ export interface VariationFormData {
 export interface ProductFormData {
   // Info
   brand_id: string;
+  collection_id?: string | null;
   categories: string[]; // IDs
   name: string;
   slug?: string;

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
+import { ref } from 'vue'
 import type { Notification } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
-const { data: notifications } = await useFetch<Notification[]>('/api/notifications')
+const notifications = ref<Notification[]>([])
 </script>
 
 <template>
@@ -13,6 +14,10 @@ const { data: notifications } = await useFetch<Notification[]>('/api/notificatio
     title="Notifications"
   >
     <template #body>
+      <div v-if="notifications.length === 0" class="py-8 text-center text-sm text-muted">
+        Aucune notification pour le moment.
+      </div>
+
       <NuxtLink
         v-for="notification in notifications"
         :key="notification.id"

@@ -9,7 +9,7 @@ import {
   getTypeColor,
   getPromotionStatus,
   getStatusLabel,
-  getStatusColor,
+  getPromotionStatusColor,
   formatPromotionValue,
   formatUsageLimit
 } from '~/utils/promotion'
@@ -184,7 +184,7 @@ const columns: TableColumn<Promotion>[] = [
       return h('div', { class: 'flex items-center gap-2' }, [
         h(UBadge, {
           variant: 'subtle',
-          color: getStatusColor(status),
+          color: getPromotionStatusColor(status),
           size: 'sm'
         }, () => getStatusLabel(status)),
         promo.deleted_at && h(UBadge, {

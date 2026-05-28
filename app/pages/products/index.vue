@@ -29,6 +29,7 @@ const UIcon = resolveComponent('UIcon')
 const toast = useToast()
 const router = useRouter()
 const route = useRoute()
+const config = useRuntimeConfig()
 
 const {
   state,
@@ -55,6 +56,7 @@ const rowSelection = ref<Record<string, boolean>>({})
 const localSearch = ref<string>(state.value.filters.search || '')
 const localStatus = ref<ProductStatus | 'all'>(state.value.filters.status || 'all')
 const localStock = ref<'all' | 'in_stock' | 'out_of_stock'>('all')
+const storefrontUrl = computed(() => String(config.public.storefrontUrl || 'http://localhost:3001').replace(/\/$/, ''))
 
 // État pour la collection filtrée
 const filteredCollection = ref<Collection | null>(null)
@@ -269,8 +271,9 @@ function getRowItems(product: Product) {
       {
         label: 'Voir sur le site',
         icon: 'i-lucide-external-link',
-        to: `/products/${product.slug}`,
-        target: '_blank'
+        to: `${storefrontUrl.value}/products/${product.slug}`,
+        target: '_blank',
+        external: true
       }
     ],
     [

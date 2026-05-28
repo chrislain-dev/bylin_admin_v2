@@ -259,12 +259,24 @@ export const useInventories = () => {
   // ============================================================================
 
   async function fetchMovements(
-    customFilters?: InventoryMovementFilters
+    customFilters?: InventoryMovementFilters,
+    options?: { resetPage?: boolean }
   ): Promise<void> {
     loading.value = true;
     loadingState.value = "loading";
 
     try {
+      if (customFilters) {
+        movementFilters.value = {
+          ...movementFilters.value,
+          ...customFilters,
+        };
+      }
+
+      if (options?.resetPage) {
+        pagination.value.pageIndex = 0;
+      }
+
       const params = cleanParams({
         page: pagination.value.pageIndex + 1,
         per_page: pagination.value.pageSize,
@@ -275,7 +287,6 @@ export const useInventories = () => {
         date_from: movementFilters.value.date_from,
         date_to: movementFilters.value.date_to,
         user_id: movementFilters.value.user_id,
-        ...customFilters,
       });
 
       const response = await client<
@@ -336,8 +347,6 @@ export const useInventories = () => {
     lastError.value = null;
 
     try {
-      console.log("Payload ajustement stock:", payload);
-
       const response = await client<ApiResponse<StockMovement[]>>(
         "/api/v1/admin/inventory/adjust",
         {
@@ -534,8 +543,19 @@ function setStockStatus(stockStatus: FilterStockStatus): void {
     fetchInventoryItems();
   }
 
+  function setMovementPage(pageIndex: number): void {
+    pagination.value.pageIndex = pageIndex;
+    fetchMovements();
+  }
+
   function setMovementType(type: StockMovementType | undefined): void {
     movementFilters.value.type = type;
+    pagination.value.pageIndex = 0;
+    fetchMovements();
+  }
+
+  function setMovementReason(reason: InventoryMovementFilters["reason"] | undefined): void {
+    movementFilters.value.reason = reason;
     pagination.value.pageIndex = 0;
     fetchMovements();
   }
@@ -652,7 +672,9 @@ function setStockStatus(stockStatus: FilterStockStatus): void {
     setStockStatus,
     setBrandFilter,
     setCategoryFilter,
+    setMovementPage,
     setMovementType,
+    setMovementReason,
     setMovementDateRange,
     resetFilters,
     resetMovementFilters,

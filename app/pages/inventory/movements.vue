@@ -33,9 +33,7 @@ const {
   pagination,
   movementFilters,
   fetchMovements,
-  setPage,
-  setMovementType,
-  setMovementDateRange,
+  setMovementPage,
   resetMovementFilters
 } = useInventories()
 
@@ -106,7 +104,7 @@ const dateRangeLabel = computed(() => {
 
 const currentPage = computed({
   get: () => pagination.value.pageIndex + 1,
-  set: (val) => setPage(val - 1)
+  set: (val) => setMovementPage(val - 1)
 })
 
 // ========================================
@@ -140,26 +138,26 @@ function clearFilters() {
   if (!route.query.product_id) {
     localFilters.product_id = undefined
   }
-  loadData()
+  loadData(true)
 }
 
 function removeDateFromFilter() {
   localFilters.date_from = undefined
   localFilters.date_to = undefined
-  loadData()
+  loadData(true)
 }
 
 function removeTypeFilter() {
   localFilters.type = undefined
-  loadData()
+  loadData(true)
 }
 
 function removeReasonFilter() {
   localFilters.reason = undefined
-  loadData()
+  loadData(true)
 }
 
-function loadData() {
+function loadData(resetPage = false) {
   // Nettoyer les paramètres vides
   const filters: InventoryMovementFilters = {}
 
@@ -169,29 +167,29 @@ function loadData() {
   if (localFilters.date_from) filters.date_from = localFilters.date_from
   if (localFilters.date_to) filters.date_to = localFilters.date_to
 
-  fetchMovements(filters)
+  fetchMovements(filters, { resetPage })
 }
 
 // ========================================
 // Watchers
 // ========================================
 watch(() => localFilters.type, () => {
-  loadData()
+  loadData(true)
 })
 
 watch(() => localFilters.reason, () => {
-  loadData()
+  loadData(true)
 })
 
 watch(() => [localFilters.date_from, localFilters.date_to], () => {
-  loadData()
+  loadData(true)
 })
 
 // ========================================
 // Lifecycle
 // ========================================
 onMounted(() => {
-  loadData()
+  loadData(false)
 })
 </script>
 

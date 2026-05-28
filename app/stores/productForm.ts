@@ -20,6 +20,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   // État principal du formulaire
   const formData = ref<ProductFormData>({
     brand_id: "",
+    collection_id: null,
     categories: [],
     name: "",
     slug: "",
@@ -81,6 +82,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   const resetFormData = () => {
     formData.value = {
       brand_id: "",
+      collection_id: null,
       categories: [],
       name: "",
       slug: "",
@@ -133,6 +135,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     formData.value = {
       ...formData.value,
       brand_id: product.brand_id,
+      collection_id: product.collection_id ?? null,
       categories: product.categories?.map((c) => c.id) || [],
       name: product.name,
       slug: product.slug,

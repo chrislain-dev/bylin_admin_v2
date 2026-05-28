@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 const toast = useToast()
+const { fetchSettings, updateSettings, resetLocalDefaults } = useInventoryNotificationSettings()
 
 const open = defineModel<boolean>('open', { required: true })
 const loading = ref(false)
@@ -60,7 +61,7 @@ const defaultState: NotificationSettingsSchema = {
 
 // Methods
 function resetToDefaults() {
-  Object.assign(state, defaultState)
+  Object.assign(state, resetLocalDefaults())
   toast.add({
     title: 'Paramètres réinitialisés',
     description: 'Les paramètres par défaut ont été restaurés',
@@ -73,8 +74,8 @@ async function onSubmit(event: FormSubmitEvent<NotificationSettingsSchema>) {
   loading.value = true
 
   try {
-    // TODO: Envoyer au backend
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const savedSettings = await updateSettings(event.data)
+    Object.assign(state, savedSettings)
 
     toast.add({
       title: 'Paramètres enregistrés',
@@ -97,13 +98,27 @@ async function onSubmit(event: FormSubmitEvent<NotificationSettingsSchema>) {
 }
 
 function handleModalClose() {
-  // Optionnel: recharger les paramètres depuis le serveur
+  // Pas de requête automatique à la fermeture pour éviter les appels inutiles.
 }
 
-// Load settings on mount
-onMounted(async () => {
-  // TODO: Charger depuis le backend
-})
+watch(open, async (isOpen) => {
+  if (!isOpen) return
+
+  loading.value = true
+  try {
+    const remoteSettings = await fetchSettings()
+    Object.assign(state, remoteSettings)
+  } catch {
+    toast.add({
+      title: 'Paramètres indisponibles',
+      description: 'Les paramètres locaux sont affichés. Réessayez après vérification de l’API.',
+      color: 'warning',
+      icon: 'i-heroicons-exclamation-triangle'
+    })
+  } finally {
+    loading.value = false
+  }
+}, { immediate: false })
 </script>
 
 <template>

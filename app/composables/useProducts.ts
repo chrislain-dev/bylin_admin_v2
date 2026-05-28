@@ -181,7 +181,7 @@ export const useProduct = () => {
     }
   }
 
-  async function createProduct(data: ProductFormData): Promise<Product | null> {
+  async function createProduct(data: Partial<ProductFormData>): Promise<Product | null> {
     state.value.loadingState = "loading";
     state.value.error = null;
 
@@ -278,6 +278,68 @@ export const useProduct = () => {
     }
   }
 
+  async function restoreProducts(ids: string[]): Promise<boolean> {
+    if (ids.length === 0) return false;
+
+    state.value.loadingState = "loading";
+    state.value.error = null;
+
+    try {
+      const isBulk = ids.length > 1;
+      const url = isBulk
+        ? "/api/v1/admin/products/bulk/restore"
+        : `/api/v1/admin/products/${ids[0]}/restore`;
+
+      const response = await client<ApiResponse<null>>(url, {
+        method: "POST",
+        body: isBulk ? { ids } : undefined,
+      });
+
+      if (response.success) {
+        state.value.loadingState = "success";
+        await fetchProducts();
+        return true;
+      }
+      return false;
+    } catch (error: unknown) {
+      state.value.loadingState = "error";
+      state.value.error = getErrorMessage(error);
+      handleError(error, "Erreur lors de la restauration");
+      return false;
+    }
+  }
+
+  async function forceDeleteProducts(ids: string[]): Promise<boolean> {
+    if (ids.length === 0) return false;
+
+    state.value.loadingState = "loading";
+    state.value.error = null;
+
+    try {
+      const isBulk = ids.length > 1;
+      const url = isBulk
+        ? "/api/v1/admin/products/bulk/force-delete"
+        : `/api/v1/admin/products/${ids[0]}/force`;
+
+      const response = await client<ApiResponse<null>>(url, {
+        method: isBulk ? "POST" : "DELETE",
+        body: isBulk ? { ids } : undefined,
+      });
+
+      if (response.success) {
+        state.value.loadingState = "success";
+        await fetchProducts();
+        return true;
+      }
+      return false;
+    } catch (error: unknown) {
+      state.value.loadingState = "error";
+      state.value.error = getErrorMessage(error);
+      handleError(error, "Erreur lors de la suppression définitive");
+      return false;
+    }
+  }
+
   async function duplicateProduct(id: string): Promise<Product | null> {
     state.value.loadingState = "loading";
 
@@ -337,11 +399,13 @@ export const useProduct = () => {
     }
   }
 
-  // Type pour les options de précommande
+  // Options UI pour l’activation rapide de la précommande.
+  // L’API attend release_date / max_quantity / description.
   interface PreorderOptions {
     available_date?: string;
     limit?: number;
     message?: string;
+    terms?: string;
   }
 
   async function togglePreorder(
@@ -351,9 +415,18 @@ export const useProduct = () => {
   ): Promise<boolean> {
     try {
       const endpoint = enable ? "enable-preorder" : "disable-preorder";
+      const body = enable
+        ? {
+            release_date: options?.available_date,
+            max_quantity: options?.limit,
+            description: options?.message,
+            terms: options?.terms,
+          }
+        : undefined;
+
       const response = await client<ApiResponse<Product>>(
         `/api/v1/admin/products/${id}/${endpoint}`,
-        { method: "POST", body: options }
+        { method: "POST", body }
       );
 
       if (response.success) {
@@ -570,6 +643,8 @@ export const useProduct = () => {
     updateProduct,
     deleteProduct,
     deleteProducts,
+    restoreProducts,
+    forceDeleteProducts,
     duplicateProduct,
 
     // Actions spécifiques

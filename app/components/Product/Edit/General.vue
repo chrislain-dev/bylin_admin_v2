@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { Category } from '~/types/category'
 import type { Brand } from '~/types/brand'
+import type { Collection } from '~/types/collection'
 import { useProductFormStore } from '~/stores/productForm'
 
 const props = defineProps<{
   brands: Brand[]
   categories: readonly Category[]
+  collections: Collection[]
 }>()
 
 const productFormStore = useProductFormStore()
@@ -22,12 +24,35 @@ const selectedBrand = computed(() => {
   return props.brands.find(b => b.id === productFormStore.formData.brand_id)
 })
 
+const isBylinBrand = computed(() => selectedBrand.value?.slug === 'bylin')
+
 const brandOptions = computed(() => {
   return props.brands.map(brand => ({
     label: brand.name,
     value: brand.id,
     logo_url: brand.logo_url
   }))
+})
+
+const collectionOptions = computed(() =>
+  props.collections
+    .filter(collection => collection.is_active)
+    .map(collection => ({
+      label: collection.name,
+      value: collection.id,
+    }))
+)
+
+watch(isBylinBrand, (enabled) => {
+  if (!enabled) {
+    productFormStore.setFormData({
+      collection_id: null,
+      requires_authenticity: false,
+      authenticity_codes_count: 0,
+    })
+  } else {
+    productFormStore.setFormData({ requires_authenticity: true })
+  }
 })
 
 const categoryOptions = computed(() => {
@@ -61,7 +86,7 @@ function generateSlug() {
 
 <template>
   <div class="space-y-6 p-6">
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <UFormField label="Marque" required>
         <USelectMenu
 :model-value="productFormStore.formData.brand_id"
@@ -90,6 +115,21 @@ multiple
 searchable
 class="w-full"
           @update:model-value="productFormStore.setFormData({ categories: $event as string[] })" />
+      </UFormField>
+
+      <UFormField v-if="isBylinBrand" label="Collection Bylin" required>
+        <USelectMenu
+          :model-value="productFormStore.formData.collection_id || undefined"
+          :items="collectionOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="Sélectionner une collection"
+          searchable
+          class="w-full"
+          @update:model-value="productFormStore.setFormData({ collection_id: $event as string })" />
+        <template #hint>
+          Les produits de la marque Bylin doivent obligatoirement être rattachés à une collection.
+        </template>
       </UFormField>
     </div>
 
