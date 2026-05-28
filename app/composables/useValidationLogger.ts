@@ -7,8 +7,7 @@ export function useValidationLogger() {
   const logValidationErrors = (
     errors: ValidationError | null | undefined
   ): void => {
-    if (!errors) {
-      console.warn("Aucune erreur de validation à logger");
+    if (!import.meta.dev || !errors) {
       return;
     }
 
@@ -22,7 +21,7 @@ export function useValidationLogger() {
         ? errorMessages
         : [errorMessages];
 
-      console.log(`${field}:`, messages.join(", "));
+      console.info(`${field}:`, messages.join(", "));
 
       // Log supplémentaire pour les variations
       if (field.includes("variations")) {
@@ -30,7 +29,7 @@ export function useValidationLogger() {
         if (match) {
           const index = match[1];
           const subField = match[2];
-          console.log(
+          console.info(
             `   → Variation ${parseInt(index as string) + 1}, Champ: ${subField}`
           );
         }

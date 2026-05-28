@@ -39,7 +39,6 @@ export interface Member {
   is_online?: boolean;
 }
 
-
 export interface Permission {
   id: string;
   name: string;

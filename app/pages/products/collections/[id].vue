@@ -90,8 +90,7 @@ function handleUpdated() {
 
 async function handleToggleActive() {
   if (!collection.value) {
-    console.warn('[handleToggleActive] No collection');
-    return;
+    return
   }
 
   const success = await toggleActive(collection.value.id);

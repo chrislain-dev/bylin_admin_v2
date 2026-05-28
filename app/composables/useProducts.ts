@@ -10,7 +10,7 @@ import type {
 } from "~/types/product";
 import type { ValidationErrors, ApiErrorResponse } from "~/types/validation";
 
-export const useProduct = () => {
+export const useProducts = () => {
   const client = useSanctumClient();
   const toast = useToast();
 
@@ -63,14 +63,14 @@ export const useProduct = () => {
     const f = state.value.filters;
     return Boolean(
       f.search ||
-        f.status ||
-        f.brand_id ||
-        f.category_id ||
-        f.collection_id ||
-        f.in_stock !== undefined ||
-        f.is_preorder !== undefined ||
-        f.is_featured !== undefined ||
-        f.with_trashed
+      f.status ||
+      f.brand_id ||
+      f.category_id ||
+      f.collection_id ||
+      f.in_stock !== undefined ||
+      f.is_preorder !== undefined ||
+      f.is_featured !== undefined ||
+      f.with_trashed,
     );
   });
 
@@ -139,7 +139,7 @@ export const useProduct = () => {
 
       const response = await client<ApiResponse<LaravelPaginator<Product>>>(
         "/api/v1/admin/products",
-        { method: "GET", params }
+        { method: "GET", params },
       );
 
       if (response.success) {
@@ -164,7 +164,7 @@ export const useProduct = () => {
     try {
       const response = await client<ApiResponse<Product>>(
         `/api/v1/admin/products/${id}`,
-        { method: "GET" }
+        { method: "GET" },
       );
 
       if (response.success) {
@@ -181,7 +181,9 @@ export const useProduct = () => {
     }
   }
 
-  async function createProduct(data: Partial<ProductFormData>): Promise<Product | null> {
+  async function createProduct(
+    data: Partial<ProductFormData>,
+  ): Promise<Product | null> {
     state.value.loadingState = "loading";
     state.value.error = null;
 
@@ -190,7 +192,7 @@ export const useProduct = () => {
 
       const response = await client<ApiResponse<Product>>(
         "/api/v1/admin/products",
-        { method: "POST", body: formData }
+        { method: "POST", body: formData },
       );
 
       if (response.success) {
@@ -209,7 +211,7 @@ export const useProduct = () => {
 
   async function updateProduct(
     id: string,
-    data: Partial<ProductFormData>
+    data: Partial<ProductFormData>,
   ): Promise<Product | null> {
     state.value.loadingState = "loading";
     state.value.error = null;
@@ -220,7 +222,7 @@ export const useProduct = () => {
 
       const response = await client<ApiResponse<Product>>(
         `/api/v1/admin/products/${id}`,
-        { method: "POST", body: formData }
+        { method: "POST", body: formData },
       );
 
       if (response.success) {
@@ -346,7 +348,7 @@ export const useProduct = () => {
     try {
       const response = await client<ApiResponse<Product>>(
         `/api/v1/admin/products/${id}/duplicate`,
-        { method: "POST" }
+        { method: "POST" },
       );
 
       if (response.success) {
@@ -369,7 +371,7 @@ export const useProduct = () => {
   async function updateStock(
     id: string,
     quantity: number,
-    operation: "set" | "add" | "sub" = "set"
+    operation: "set" | "add" | "sub" = "set",
   ): Promise<boolean> {
     try {
       const response = await client<ApiResponse<Product>>(
@@ -377,7 +379,7 @@ export const useProduct = () => {
         {
           method: "POST",
           body: { quantity, operation },
-        }
+        },
       );
 
       if (response.success) {
@@ -411,7 +413,7 @@ export const useProduct = () => {
   async function togglePreorder(
     id: string,
     enable: boolean,
-    options?: PreorderOptions
+    options?: PreorderOptions,
   ): Promise<boolean> {
     try {
       const endpoint = enable ? "enable-preorder" : "disable-preorder";
@@ -426,7 +428,7 @@ export const useProduct = () => {
 
       const response = await client<ApiResponse<Product>>(
         `/api/v1/admin/products/${id}/${endpoint}`,
-        { method: "POST", body }
+        { method: "POST", body },
       );
 
       if (response.success) {
@@ -447,7 +449,7 @@ export const useProduct = () => {
     try {
       const response = await client<ApiResponse<ProductStatistics>>(
         "/api/v1/admin/products/statistics",
-        { method: "GET" }
+        { method: "GET" },
       );
 
       if (response.success) {
@@ -547,7 +549,7 @@ export const useProduct = () => {
     if (errors && typeof errors === "object") {
       const errorMessages = Object.entries(errors)
         .map(([_field, messages]) =>
-          Array.isArray(messages) ? messages[0] : messages
+          Array.isArray(messages) ? messages[0] : messages,
         )
         .join("\n");
 
@@ -577,7 +579,7 @@ export const useProduct = () => {
   function objectToFormData(
     obj: object,
     form?: FormData,
-    namespace?: string
+    namespace?: string,
   ): FormData {
     const fd = form || new FormData();
 

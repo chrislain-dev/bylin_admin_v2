@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format } from 'date-fns'
+import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format, parseISO } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 import type { Period, Range } from '~/types'
 
@@ -15,22 +15,59 @@ type DataRecord = {
   amount: number
 }
 
+type DashboardStatsResponse = {
+  success: boolean
+  data: {
+    revenue?: number
+    revenue_series?: Array<{ date: string, amount: number }>
+  }
+}
+
+const client = useSanctumClient()
 const { width } = useElementSize(cardRef)
 
 const data = ref<DataRecord[]>([])
+const loading = ref(false)
+const loadFailed = ref(false)
 
-watch([() => props.period, () => props.range], () => {
+function emptySeries(): DataRecord[] {
   const dates = ({
     daily: eachDayOfInterval,
     weekly: eachWeekOfInterval,
     monthly: eachMonthOfInterval
   } as Record<Period, typeof eachDayOfInterval>)[props.period](props.range)
 
-  const min = 1000
-  const max = 10000
+  return dates.map(date => ({ date, amount: 0 }))
+}
 
-  data.value = dates.map(date => ({ date, amount: Math.floor(Math.random() * (max - min + 1)) + min }))
-}, { immediate: true })
+async function fetchRevenueSeries() {
+  loading.value = true
+  loadFailed.value = false
+
+  try {
+    const response = await client<DashboardStatsResponse>('/api/v1/admin/dashboard/stats', {
+      method: 'GET',
+      params: {
+        period: props.period,
+        date_from: format(props.range.start, 'yyyy-MM-dd'),
+        date_to: format(props.range.end, 'yyyy-MM-dd')
+      }
+    })
+
+    const series = response.data?.revenue_series ?? []
+
+    data.value = series.length > 0
+      ? series.map(item => ({ date: parseISO(item.date), amount: Number(item.amount || 0) }))
+      : emptySeries()
+  } catch {
+    loadFailed.value = true
+    data.value = emptySeries()
+  } finally {
+    loading.value = false
+  }
+}
+
+watch([() => props.period, () => props.range], fetchRevenueSeries, { immediate: true })
 
 const x = (_: DataRecord, i: number) => i
 const y = (d: DataRecord) => d.amount
@@ -65,8 +102,14 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${formatNumber(d.amo
         <p class="text-xs text-muted uppercase mb-1.5">
           Revenue
         </p>
-        <p class="text-3xl text-highlighted font-semibold">
-          {{ formatNumber(total) }}
+        <div class="flex items-center gap-3">
+          <p class="text-3xl text-highlighted font-semibold">
+            {{ formatNumber(total) }}
+          </p>
+          <UIcon v-if="loading" name="i-lucide-loader-circle" class="animate-spin text-muted" />
+        </div>
+        <p v-if="loadFailed" class="text-xs text-error mt-2">
+          Impossible de charger la courbe de revenus. Les valeurs affichées sont à zéro.
         </p>
       </div>
     </template>

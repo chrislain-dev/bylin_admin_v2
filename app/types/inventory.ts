@@ -32,12 +32,12 @@ export type LoadingState = "idle" | "loading" | "success" | "error";
 export type StockOperation = "set" | "add" | "sub";
 
 export type StockReason =
-  | 'adjustment'
-  | 'sale'
-  | 'return'
-  | 'damaged'
-  | 'restock'
-  | 'lost';
+  | "adjustment"
+  | "sale"
+  | "return"
+  | "damaged"
+  | "restock"
+  | "lost";
 
 export type StockMovementType = "in" | "out" | "adjustment";
 
@@ -78,7 +78,9 @@ export interface VariableStockAdjustment extends BaseAdjustmentPayload {
 }
 
 // Type Union : TypeScript saura lequel utiliser selon les propriétés présentes
-export type AdjustStockPayload = SimpleStockAdjustment | VariableStockAdjustment;
+export type AdjustStockPayload =
+  | SimpleStockAdjustment
+  | VariableStockAdjustment;
 
 // --- MODÈLES DE DONNÉES ---
 
@@ -203,7 +205,11 @@ export interface InventoryExportResult {
   expires_at: string;
 }
 
-export type InventoryAlertFrequency = "realtime" | "hourly" | "daily" | "weekly";
+export type InventoryAlertFrequency =
+  | "realtime"
+  | "hourly"
+  | "daily"
+  | "weekly";
 
 export interface InventoryNotificationSettings {
   email_low_stock: boolean;
@@ -247,7 +253,7 @@ export const STOCK_STATUS_COLORS = {
 
 // Helper pour vérifier si c'est un payload variable (Type Guard)
 export function isVariableAdjustment(
-  payload: AdjustStockPayload
+  payload: AdjustStockPayload,
 ): payload is VariableStockAdjustment {
   return (payload as VariableStockAdjustment).variations !== undefined;
 }

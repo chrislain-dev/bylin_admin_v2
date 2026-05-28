@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useProducts } from '~/composables/useProducts'
 import { buildProductPayload } from '~/utils/productPayload'
 
 definePageMeta({
@@ -18,7 +19,7 @@ const {
   fetchProduct,
   updateProduct,
   duplicateProduct
-} = useProduct()
+} = useProducts()
 
 const productId = route.params.id as string
 const isSaving = ref(false)

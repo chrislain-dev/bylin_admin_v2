@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Product, ProductStatus } from '~/types/product'
 import { useProductFormStore } from '~/stores/productForm'
+import { useProducts } from '~/composables/useProducts';
 
 const props = defineProps<{
   product?: Product
@@ -8,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const productFormStore = useProductFormStore()
-const { updateStock, togglePreorder } = useProduct()
+const { updateStock, togglePreorder } = useProducts()
 const toast = useToast()
 
 const stockAdjustment = ref({ operation: 'set' as 'set' | 'add' | 'sub', quantity: 0 })

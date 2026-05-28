@@ -5,6 +5,7 @@ import type { Product, ProductStatus } from '~/types/product'
 import type { Table as TanstackTable } from '@tanstack/table-core'
 import { getProductStatusLabel, getProductStatusColor } from '~/types/product'
 import type { Collection } from '~/types/collection'
+import { useProducts } from '~/composables/useProducts'
 
 definePageMeta({
   layout: 'default',
@@ -42,7 +43,7 @@ const {
   setCollectionFilter,
   resetFilters,
   setPage
-} = useProduct()
+} = useProducts()
 
 const { fetchCollection } = useCollections()
 

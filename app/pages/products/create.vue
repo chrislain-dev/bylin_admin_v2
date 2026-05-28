@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useProducts } from '~/composables/useProducts'
 import { buildProductPayload } from '~/utils/productPayload'
 
 definePageMeta({
@@ -10,7 +11,7 @@ definePageMeta({
 const router = useRouter()
 const toast = useToast()
 const productFormStore = useProductFormStore()
-const { createProduct } = useProduct()
+const { createProduct } = useProducts()
 const { brands } = useBrands()
 
 const isBylinBrand = computed(() => {
