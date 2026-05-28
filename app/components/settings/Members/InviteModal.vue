@@ -25,7 +25,7 @@ const formRef = ref()
 const singleSchema = z.object({
   email: z.email('Email invalide'),
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').optional().or(z.literal('')),
-  role: z.enum(['admin', 'super_admin', 'manager']),
+  role: z.enum(['admin', 'manager']),
   message: z.string().max(1000, 'Le message ne peut pas dépasser 1000 caractères').optional().or(z.literal(''))
 })
 
@@ -34,7 +34,7 @@ type SingleInviteForm = z.infer<typeof singleSchema>
 // Schema pour invitations multiples
 const multipleSchema = z.object({
   emails: z.string().min(1, 'Veuillez entrer au moins un email'),
-  role: z.enum(['admin', 'super_admin', 'manager']),
+  role: z.enum(['admin', 'manager']),
   message: z.string().max(1000, 'Le message ne peut pas dépasser 1000 caractères').optional().or(z.literal(''))
 })
 
@@ -60,21 +60,15 @@ const multipleForm = reactive<MultipleInviteForm>({
 
 const roleOptions = [
   {
-    label: 'Super Administrateur',
-    value: 'super_admin',
-    description: 'Accès complet au système',
-    icon: 'i-lucide-shield-check'
-  },
-  {
     label: 'Administrateur',
     value: 'admin',
-    description: 'Gestion complète',
+    description: 'Gère les ventes, le catalogue, les clients et les paramètres courants',
     icon: 'i-lucide-shield'
   },
   {
     label: 'Gestionnaire',
     value: 'manager',
-    description: 'Gestion quotidienne',
+    description: 'Traite les tâches quotidiennes : produits, commandes, stock et avis',
     icon: 'i-lucide-briefcase'
   }
 ]
@@ -173,8 +167,8 @@ async function handleSubmit() {
 <template>
   <UModal
     v-model:open="isOpen"
-    title="Inviter des membres"
-    description="Envoyez des invitations par email pour rejoindre votre équipe."
+    title="Inviter un membre"
+    description="Donnez un accès clair au dashboard à une personne de votre équipe."
     :ui="{ content: 'sm:max-w-5xl' }"
     @after:leave="handleModalClose"
   >
@@ -192,7 +186,7 @@ async function handleSubmit() {
             ]"
             @click="inviteMode = 'single'"
           >
-            Invitation simple
+            Un membre
           </button>
           <button
             type="button"
@@ -204,7 +198,7 @@ async function handleSubmit() {
             ]"
             @click="inviteMode = 'multiple'"
           >
-            Invitations multiples
+            Plusieurs membres
           </button>
         </div>
 
@@ -222,7 +216,7 @@ async function handleSubmit() {
               <UInput
 v-model="singleForm.email"
 type="email"
-placeholder="john@example.com"
+placeholder="collaborateur@entreprise.com"
 icon="i-lucide-mail"
 class="w-full"
                 :disabled="loading" />
@@ -301,7 +295,7 @@ class="w-full" />
           >
             <UTextarea
               v-model="multipleForm.emails"
-              placeholder="john@example.com, jane@example.com"
+              placeholder="collaborateur@entreprise.com, assistant@entreprise.com"
               :rows="6"
               :disabled="loading"
             />

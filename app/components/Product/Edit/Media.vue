@@ -1,128 +1,150 @@
 <script setup lang="ts">
-  const productFormStore = useProductFormStore()
-  const toast = useToast()
+const productFormStore = useProductFormStore()
+const toast = useToast()
 
-  function handleImageUpload(files: File[]) {
-    const newImages = [...productFormStore.images]
+function handleImageUpload(files: File[]) {
+  const newImages = [...productFormStore.images]
 
-    files.forEach(file => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.add({
-          title: 'Fichier trop volumineux',
-          description: `${file.name} dépasse 5MB`,
-          color: 'error'
-        })
-        return
-      }
-
-      const url = URL.createObjectURL(file)
-      newImages.push({ url, file, isNew: true })
-    })
-
-    productFormStore.images = newImages
-  }
-
-  function removeImage(index: number) {
-    const img = productFormStore.images[index]
-    const newImages = [...productFormStore.images]
-    const newImagesToDelete = [...productFormStore.imagesToDelete]
-
-    if (img && !img.isNew && img.id) {
-      newImagesToDelete.push(img.id)
-      productFormStore.imagesToDelete = newImagesToDelete
+  files.forEach((file) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.add({
+        title: 'Image trop lourde',
+        description: `${file.name} dépasse la limite de 5 Mo`,
+        color: 'error',
+      })
+      return
     }
 
-    newImages.splice(index, 1)
-    productFormStore.images = newImages
+    const url = URL.createObjectURL(file)
+    newImages.push({ url, file, isNew: true })
+  })
+
+  productFormStore.images = newImages
+}
+
+function removeImage(index: number) {
+  const image = productFormStore.images[index]
+  const newImages = [...productFormStore.images]
+  const newImagesToDelete = [...productFormStore.imagesToDelete]
+
+  if (image && !image.isNew && image.id) {
+    newImagesToDelete.push(image.id)
+    productFormStore.imagesToDelete = newImagesToDelete
   }
 
-  function reorderImages(oldIndex: number, newIndex: number) {
-    const newImages = [...productFormStore.images]
-    const item = newImages[oldIndex]
-    if (!item) return
+  newImages.splice(index, 1)
+  productFormStore.images = newImages
+}
 
-    newImages.splice(oldIndex, 1)
-    newImages.splice(newIndex, 0, item)
-    productFormStore.images = newImages
-  }
+function reorderImages(oldIndex: number, newIndex: number) {
+  const newImages = [...productFormStore.images]
+  const item = newImages[oldIndex]
+  if (!item) return
+
+  newImages.splice(oldIndex, 1)
+  newImages.splice(newIndex, 0, item)
+  productFormStore.images = newImages
+}
 </script>
 
 <template>
-  <div class="p-6 space-y-6">
-    <!-- Upload zone -->
-    <div>
-      <label class="block text-sm font-medium mb-2">Ajouter des images</label>
-      <input
-type="file"
-multiple
-accept="image/png,image/jpeg,image/webp"
-        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-        @change="(e) => {
-          const files = (e.target as HTMLInputElement).files
-          if (files) handleImageUpload(Array.from(files))
-        }">
-      <p class="mt-1 text-xs text-gray-500">PNG, JPG, WEBP jusqu'à 5MB par fichier</p>
-    </div>
+  <div class="space-y-6 p-6">
+    <UCard>
+      <template #header>
+        <div>
+          <h2 class="text-base font-semibold text-gray-950 dark:text-white">
+            Images du produit
+          </h2>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Ajoutez des visuels propres. La première image sera utilisée comme image principale sur la boutique.
+          </p>
+        </div>
+      </template>
 
-    <!-- Galerie d'images -->
-    <div v-if="productFormStore.images.length > 0">
-      <div class="flex items-center justify-between mb-3">
-        <label class="block text-sm font-medium">Images du produit ({{ productFormStore.images.length }})</label>
-        <p class="text-xs text-gray-500">La première image sera l'image principale</p>
-      </div>
+      <div class="space-y-5">
+        <label class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 px-6 py-10 text-center transition hover:border-primary-300 hover:bg-primary-50/60 dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-primary-800 dark:hover:bg-primary-950/20">
+          <UIcon name="i-lucide-image-plus" class="size-9 text-gray-400" />
+          <span class="mt-3 text-sm font-medium text-gray-950 dark:text-white">
+            Ajouter une ou plusieurs images
+          </span>
+          <span class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            PNG, JPG ou WEBP — 5 Mo maximum par image
+          </span>
+          <input
+            type="file"
+            multiple
+            accept="image/png,image/jpeg,image/webp"
+            class="sr-only"
+            @change="(event) => {
+              const files = (event.target as HTMLInputElement).files
+              if (files) handleImageUpload(Array.from(files))
+            }"
+          >
+        </label>
 
-      <div class="grid grid-cols-3 gap-4">
-        <div
-v-for="(image, idx) in productFormStore.images"
-:key="idx"
-          class="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 group">
-          <img :src="image.url" :alt="`Image ${idx + 1}`" class="w-full h-full object-cover">
-
-          <!-- Badge "Principal" -->
-          <div v-if="idx === 0" class="absolute top-2 left-2">
-            <UBadge color="primary" variant="solid" size="xs">Principal</UBadge>
+        <div v-if="productFormStore.images.length > 0" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-medium text-gray-950 dark:text-white">
+              Galerie produit — {{ productFormStore.images.length }} image(s)
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Glissez l’image principale en première position avec les flèches.
+            </p>
           </div>
 
-          <!-- Badge "Nouveau" -->
-          <div v-if="image.isNew" class="absolute top-2 right-2">
-            <UBadge color="success" variant="solid" size="xs">Nouveau</UBadge>
-          </div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div
+              v-for="(image, index) in productFormStore.images"
+              :key="`${image.id || 'new'}-${index}`"
+              class="group relative aspect-square overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-900"
+            >
+              <img :src="image.url" :alt="`Image produit ${index + 1}`" class="size-full object-cover">
 
-          <!-- Actions overlay -->
-          <div
-            class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-            <UButton
-v-if="idx > 0"
-icon="i-lucide-arrow-left"
-color="neutral"
-variant="solid"
-size="xs"
-              @click="reorderImages(idx, idx - 1)" />
-            <UButton
-icon="i-lucide-trash-2"
-color="error"
-variant="solid"
-size="xs"
-@click="removeImage(idx)" />
-            <UButton
-v-if="idx < productFormStore.images.length - 1"
-icon="i-lucide-arrow-right"
-color="neutral"
-              variant="solid"
-size="xs"
-@click="reorderImages(idx, idx + 1)" />
+              <div class="absolute left-2 top-2 flex gap-2">
+                <UBadge v-if="index === 0" color="primary" variant="solid" size="xs">
+                  Image principale
+                </UBadge>
+                <UBadge v-if="image.isNew" color="success" variant="solid" size="xs">
+                  Nouvelle
+                </UBadge>
+              </div>
+
+              <div class="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-center gap-2 bg-black/60 p-3 transition group-hover:translate-y-0">
+                <UButton
+                  v-if="index > 0"
+                  icon="i-lucide-arrow-left"
+                  color="neutral"
+                  variant="solid"
+                  size="xs"
+                  @click="reorderImages(index, index - 1)"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="solid"
+                  size="xs"
+                  @click="removeImage(index)"
+                />
+                <UButton
+                  v-if="index < productFormStore.images.length - 1"
+                  icon="i-lucide-arrow-right"
+                  color="neutral"
+                  variant="solid"
+                  size="xs"
+                  @click="reorderImages(index, index + 1)"
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Message si aucune image -->
-    <UAlert
-v-else
-icon="i-lucide-image"
-color="neutral"
-variant="soft"
-title="Aucune image"
-      description="Ajoutez des images pour mettre en valeur votre produit" />
+        <AdminEmptyState
+          v-else
+          icon="i-lucide-images"
+          title="Aucune image pour ce produit"
+          description="Ajoutez au moins une image propre avant de publier le produit."
+        />
+      </div>
+    </UCard>
   </div>
 </template>

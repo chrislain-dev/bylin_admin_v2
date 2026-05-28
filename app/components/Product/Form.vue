@@ -28,8 +28,8 @@ const { collections, fetchCollections } = useCollections()
 const activeTab = ref('general')
 
 const tabs = computed(() => [
-  { key: 'general', label: 'Informations générales', slot: 'general' as const },
-  { key: 'pricing', label: 'Prix & Stock', slot: 'pricing' as const },
+  { key: 'general', label: 'Essentiel', slot: 'general' as const },
+  { key: 'pricing', label: 'Prix et stock', slot: 'pricing' as const },
   {
     key: 'media',
     label: 'Images',
@@ -43,8 +43,8 @@ const tabs = computed(() => [
     disabled: !productFormStore.formData.is_variable,
     slot: 'variations' as const
   },
-  { key: 'seo', label: 'SEO', slot: 'seo' as const },
-  { key: 'advanced', label: 'Avancé', slot: 'advanced' as const }
+  { key: 'seo', label: 'Référencement', slot: 'seo' as const },
+  { key: 'advanced', label: 'Publication', slot: 'advanced' as const }
 ])
 
 const pageTitle = computed(() =>
@@ -55,8 +55,8 @@ const pageTitle = computed(() =>
 
 const pageDescription = computed(() =>
   props.mode === 'create'
-    ? 'Ajouter un nouveau produit au catalogue'
-    : `SKU: ${props.product?.sku}`
+    ? 'Renseignez les informations nécessaires pour publier un produit proprement.'
+    : 'Modifiez les informations visibles sur la boutique et les paramètres internes.'
 )
 
 const saveButtonLabel = computed(() => props.mode === 'create' ? 'Créer le produit' : 'Sauvegarder')
